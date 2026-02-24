@@ -52,7 +52,12 @@ public class Intake extends SubsystemBase {
         HOMED(110),
         STOWED(100),
         INTAKE(-4),
-        AGITATE(20);
+        AGITATE(20),
+
+        POSITION_0(0),
+        POSITION_1(10),
+        POSITION_2(20),
+        POSITION_3(30);
 
         private final double degrees;
 
@@ -200,6 +205,31 @@ public class Intake extends SubsystemBase {
             })
         )
         .unless(() -> isHomed)
+        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
+    }
+
+    public Command testingCmd() {
+        return Commands.sequence(
+            runOnce(() -> {
+                pivotMotor.setPosition(Position.HOMED.angle());
+            }),
+
+            runOnce(() -> set(Position.POSITION_1)),
+            Commands.waitSeconds(1.0),
+            runOnce(() -> set(Position.POSITION_0)),
+            Commands.waitSeconds(1.0),
+            runOnce(() -> set(Position.POSITION_2)),
+            Commands.waitSeconds(1.0),
+            runOnce(() -> set(Position.POSITION_0)),
+            Commands.waitSeconds(1.0),
+            runOnce(() -> set(Position.POSITION_3)),
+            Commands.waitSeconds(1.0),
+            runOnce(() -> set(Position.POSITION_0)),
+
+            runOnce(() -> {
+                isHomed = true;
+            })
+        ).unless(() -> isHomed)
         .withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
     }
 
