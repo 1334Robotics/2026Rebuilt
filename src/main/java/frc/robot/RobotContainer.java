@@ -103,6 +103,7 @@ public class RobotContainer {
         operator.rightBumper().whileTrue(subsystemCommands.shootManually());
         operator.leftTrigger().whileTrue(intake.intakeCommand());
         operator.leftBumper().onTrue(intake.runOnce(() -> intake.set(Intake.Position.STOWED)));
+        operator.x().whileTrue(subsystemCommands.feedAndShoot());
 
         operator.povUp().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
         operator.povDown().onTrue(hanger.positionCommand(Hanger.Position.HUNG));

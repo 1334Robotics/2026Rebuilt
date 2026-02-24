@@ -87,6 +87,13 @@ public final class SubsystemCommands {
             .handleInterrupt(() -> shooter.stop());
     }
 
+    public Command feedAndShoot() {
+        return Commands.parallel(
+            feeder.feedCommand(),
+            shooter.dashboardSpinUpCommand()
+        ).handleInterrupt(() -> shooter.stop());
+    }
+
     private Command feed() {
         return Commands.sequence(
             Commands.waitSeconds(0.25),
