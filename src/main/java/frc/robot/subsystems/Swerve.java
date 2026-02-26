@@ -43,10 +43,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             0,
             VecBuilder.fill(0.1, 0.1, 0.1),
             VecBuilder.fill(0.1, 0.1, 0.1),
-            TunerConstants.FrontLeft, 
-            TunerConstants.FrontRight, 
-            TunerConstants.BackLeft, 
-            TunerConstants.BackRight
+            TunerConstants.FrontLeft, // 0
+            TunerConstants.FrontRight, // 1
+            TunerConstants.BackLeft, // 2
+            TunerConstants.BackRight // 3
         );
     }
 
