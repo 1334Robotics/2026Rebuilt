@@ -31,11 +31,12 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.KrakenX60;
 import frc.robot.Ports;
+import frc.util.annotations.MagicNumber;
 
 public class Intake extends SubsystemBase {
     public enum Speed {
-        STOP(0),
-        INTAKE(0.8);
+        @MagicNumber STOP(0),
+        @MagicNumber INTAKE(0.8);
 
         private final double percentOutput;
 
@@ -49,15 +50,15 @@ public class Intake extends SubsystemBase {
     }
 
     public enum Position {
-        HOMED(110),
-        STOWED(100),
-        INTAKE(-4),
-        AGITATE(20),
+        @MagicNumber HOMED(110),
+        @MagicNumber STOWED(100),
+        @MagicNumber INTAKE(-4),
+        @MagicNumber AGITATE(20),
 
-        POSITION_0(0),
-        POSITION_1(720),
-        POSITION_2(60),
-        POSITION_3(30);
+        @MagicNumber POSITION_0(0),
+        @MagicNumber POSITION_1(720),
+        @MagicNumber POSITION_2(60),
+        @MagicNumber POSITION_3(30);
 
         private final double degrees;
 
