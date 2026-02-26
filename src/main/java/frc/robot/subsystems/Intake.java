@@ -80,6 +80,7 @@ public class Intake extends SubsystemBase {
     private final VoltageOut rollerVoltageRequest = new VoltageOut(0);
 
     private boolean isHomed = false;
+    private int currAngle = 0;
 
     public Intake() {
         pivotMotor = new TalonFX(Ports.kIntakePivot, Ports.kCANivoreCANBus);
@@ -87,6 +88,7 @@ public class Intake extends SubsystemBase {
         configurePivotMotor();
         configureRollerMotor();
         SmartDashboard.putData(this);
+        SmartDashboard.putString("Intake Angle", pivotMotor.getPosition().getValue().toString());
     }
 
     private void configurePivotMotor() {
@@ -160,6 +162,13 @@ public class Intake extends SubsystemBase {
         );
     }
 
+    public void set(Angle angle) {
+        pivotMotor.setControl(
+            pivotMotionMagicRequest
+                .withPosition(angle)
+        );
+    }
+
     public void set(Speed speed) {
         rollerMotor.setControl(
             rollerVoltageRequest
@@ -211,26 +220,41 @@ public class Intake extends SubsystemBase {
     public Command testingCmd() {
         return Commands.sequence(
             runOnce(() -> {
-                pivotMotor.setPosition(Position.HOMED.angle());
-            }),
+                set(Degrees.of(360));
+                // set(Degrees.of(currAngle + 10));
+                // currAngle += 10;
+                
+                SmartDashboard.putNumber("Curr Angle", currAngle);
+            }
+            ).andThen(
+                Commands.waitUntil(this::isPositionWithinTolerance)
+            )
 
-            runOnce(() -> set(Position.POSITION_1)),
-            Commands.waitSeconds(1.0),
-            runOnce(() -> set(Position.POSITION_0)),
-            Commands.waitSeconds(1.0),
-            runOnce(() -> set(Position.POSITION_2)),
-            Commands.waitSeconds(1.0),
-            runOnce(() -> set(Position.POSITION_0)),
-            Commands.waitSeconds(1.0),
-            runOnce(() -> set(Position.POSITION_3)),
-            Commands.waitSeconds(1.0),
-            runOnce(() -> set(Position.POSITION_0)),
+            // runOnce(() -> {
+            //     set(Position.POSITION_0);
+            // })
+        );
+    }
 
-            runOnce(() -> {
-                isHomed = true;
-            })
-        ).unless(() -> isHomed)
-        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
+
+    public Command extendCommand() {
+        return Commands.runEnd(
+            () -> setPivotPercentOutput(0.1),
+            () -> setPivotPercentOutput(0),
+            this
+        );
+    }
+
+    public Command retractCommand() {
+        return Commands.runEnd(
+            () -> setPivotPercentOutput(-0.1),
+            () -> setPivotPercentOutput(0),
+            this
+        );
+    }
+
+    public Command zeroEncoderCommand() {
+        return runOnce(() -> pivotMotor.setPosition(pivotMotor.getPosition().getValue()));
     }
 
     @Override
