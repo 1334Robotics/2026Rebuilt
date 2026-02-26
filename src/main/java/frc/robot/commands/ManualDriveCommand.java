@@ -18,6 +18,7 @@ import frc.robot.subsystems.Swerve;
 import frc.util.DriveInputSmoother;
 import frc.util.ManualDriveInput;
 import frc.util.Stopwatch;
+import frc.util.annotations.MagicNumber;
 
 /**
  * Teleop manual drive command for the swerve drivetrain.
@@ -33,7 +34,7 @@ public class ManualDriveCommand extends Command {
         DRIVING_WITH_LOCKED_HEADING
     }
 
-    private static final Time kHeadingLockDelay = Seconds.of(0.25); // time to wait before locking heading
+    @MagicNumber private static final Time kHeadingLockDelay = Seconds.of(0.25); // time to wait before locking heading
 
     private final Swerve swerve;
     private final DriveInputSmoother inputSmoother;
