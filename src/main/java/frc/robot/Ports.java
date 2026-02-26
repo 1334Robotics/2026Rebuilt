@@ -5,7 +5,7 @@ import com.ctre.phoenix6.CANBus;
 public final class Ports {
     // CAN Buses
     public static final CANBus kRoboRioCANBus = new CANBus("");
-    public static final CANBus kCANivoreCANBus = new CANBus("");
+    public static final CANBus kCANivoreCANBus = new CANBus("CANivore");
 
     // Talon FX IDs
     public static final int kIntakePivot = 41;
@@ -18,6 +18,6 @@ public final class Ports {
     public static final int kHanger = 50;
 
     // PWM Ports
-    public static final int kHoodLeftServo = 3;
-    public static final int kHoodRightServo = 4;
+    public static final int kHoodLeftServo = 0;
+    public static final int kHoodRightServo = 9;
 }

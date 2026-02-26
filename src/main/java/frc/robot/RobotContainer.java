@@ -13,7 +13,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Driving;
 import frc.robot.commands.AutoRoutines;
@@ -95,6 +94,8 @@ public class RobotContainer {
         //     .onTrue(intake.homingCommand())
         //     .onTrue(hanger.homingCommand());
 
+        driver.start().onTrue(intake.zeroEncoderCommand());
+
         driver.rightTrigger().whileTrue(subsystemCommands.feedAndShoot());
         driver.leftTrigger().whileTrue(intake.intakeCommand());
 
@@ -103,6 +104,11 @@ public class RobotContainer {
 
         driver.povUp().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
         driver.povDown().onTrue(hanger.positionCommand(Hanger.Position.HUNG));
+
+        driver.povRight().whileTrue(intake.extendCommand());
+        driver.povLeft().whileTrue(intake.retractCommand());
+
+        driver.b().onTrue(intake.testingCmd());
     }
 
     private void configureManualDriveBindings() {
@@ -113,11 +119,10 @@ public class RobotContainer {
             () -> -driver.getRightX()
         );
         swerve.setDefaultCommand(manualDriveCommand);
+
         // driver.a().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(Rotation2d.k180deg)));
         // driver.b().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(Rotation2d.kCW_90deg)));
         // driver.x().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(Rotation2d.kCCW_90deg)));
-
-        driver.b().onTrue(Commands.runOnce(() -> intake.testingCmd()));
 
         driver.y().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(Rotation2d.kZero)));
         driver.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric())); // the "view" button, center left of xbox logo
