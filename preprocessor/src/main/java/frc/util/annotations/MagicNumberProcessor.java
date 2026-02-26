@@ -24,7 +24,7 @@ public class MagicNumberProcessor extends AbstractProcessor {
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         for(Element element : roundEnv.getElementsAnnotatedWith(MagicNumber.class)) {
             MagicNumber annotation = element.getAnnotation(MagicNumber.class);
-            String origin = annotation.origin();
+            String origin = annotation.value();
             
             // Require a that the origin is set
             if(origin.equals("__UNKNOWN__")) {
