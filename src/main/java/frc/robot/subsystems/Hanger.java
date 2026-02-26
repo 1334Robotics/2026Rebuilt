@@ -32,13 +32,14 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.KrakenX60;
 import frc.robot.Ports;
+import frc.util.annotations.MagicNumber;
 
 public class Hanger extends SubsystemBase {
     public enum Position {
-        HOMED(0),
-        EXTEND_HOPPER(2),
-        HANGING(6),
-        HUNG(0.2);
+        @MagicNumber HOMED(0),
+        @MagicNumber EXTEND_HOPPER(2),
+        @MagicNumber HANGING(6),
+        @MagicNumber HUNG(0.2);
 
         private final double inches;
 
