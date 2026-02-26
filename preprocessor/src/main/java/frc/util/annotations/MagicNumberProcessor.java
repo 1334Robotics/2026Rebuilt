@@ -27,7 +27,7 @@ public class MagicNumberProcessor extends AbstractProcessor {
             String origin = annotation.value();
             
             // Require a that the origin is set
-            if(origin.equals("__UNKNOWN__")) {
+            if(origin.equals("__UNKNOWN_ORIGIN__")) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
                     "Magic number found without an origin. Use @MagicNumber(origin = \"<Where the number came from>\")",
                     element
