@@ -12,6 +12,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.Driving;
 import frc.robot.subsystems.Swerve;
@@ -103,6 +104,8 @@ public class ManualDriveCommand extends Command {
         lockedHeading = Optional.empty();
         headingLockStopwatch.reset();
         previousInput = new ManualDriveInput();
+
+        SmartDashboard.putString("Manual Drive", "manualDriveInitalized");
     }
 
     @Override
@@ -120,6 +123,7 @@ public class ManualDriveCommand extends Command {
         switch (currentState) {
             case IDLING:
                 swerve.setControl(idleRequest);
+                SmartDashboard.putNumber("Current Swerve State", 0);
                 break;
             case DRIVING_WITH_MANUAL_ROTATION:
                 lockHeadingIfRotationStopped(input);
@@ -129,6 +133,7 @@ public class ManualDriveCommand extends Command {
                         .withVelocityY(Driving.kMaxSpeed.times(input.left))
                         .withRotationalRate(Driving.kMaxRotationalRate.times(input.rotation))
                 );
+                SmartDashboard.putNumber("Current Swerve State", 1);
                 break;
             case DRIVING_WITH_LOCKED_HEADING:
                 swerve.setControl(
@@ -137,6 +142,7 @@ public class ManualDriveCommand extends Command {
                         .withVelocityY(Driving.kMaxSpeed.times(input.left))
                         .withTargetDirection(lockedHeading.get())
                 );
+                SmartDashboard.putNumber("Current Swerve State", 2);
                 break;
         }
     }
