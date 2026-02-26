@@ -55,8 +55,8 @@ public class Intake extends SubsystemBase {
         AGITATE(20),
 
         POSITION_0(0),
-        POSITION_1(10),
-        POSITION_2(20),
+        POSITION_1(720),
+        POSITION_2(60),
         POSITION_3(30);
 
         private final double degrees;

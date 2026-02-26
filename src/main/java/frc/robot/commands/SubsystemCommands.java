@@ -88,7 +88,8 @@ public final class SubsystemCommands {
     }
 
     public Command feedAndShoot() {
-        return Commands.parallel(feed(),
+        return Commands.parallel(
+            feed(),
             Commands.runOnce(() -> shooter.setRPM(2800), shooter))
             .finallyDo(() -> shooter.stop());
     }
