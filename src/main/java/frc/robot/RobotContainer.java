@@ -144,9 +144,4 @@ public class RobotContainer {
         })
         .ignoringDisable(true);
     }
-
-    public void printRobotEncoderOffsets() {
-        for(int i=0;i<4;i++)
-            SmartDashboard.putNumber("Module Angle #" + i, swerve.getModule(i).getEncoder().getAbsolutePosition().getValue().in(Degrees));
-    }
 }

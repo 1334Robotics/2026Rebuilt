@@ -23,7 +23,7 @@ import frc.util.annotations.MagicNumber;
 public final class Constants {
     public static class Driving {
         @MagicNumber public static final LinearVelocity kMaxSpeed = TunerConstants.kSpeedAt12Volts.times(0.1);
-        @MagicNumber public static final AngularVelocity kMaxRotationalRate = RotationsPerSecond.of(1);
+        @MagicNumber public static final AngularVelocity kMaxRotationalRate = RotationsPerSecond.of(0.1);
         @MagicNumber public static final AngularVelocity kPIDRotationDeadband = kMaxRotationalRate.times(0.05);
     }
 
