@@ -2,7 +2,6 @@ package frc.robot;
 
 import com.ctre.phoenix6.CANBus;
 
-import frc.util.annotations.MagicNumber;
 import frc.util.annotations.ManuallySet;
 
 public final class Ports {
@@ -11,7 +10,7 @@ public final class Ports {
     @ManuallySet public static final CANBus kCANivoreCANBus = new CANBus("CANivore");
 
     // Talon FX IDs
-    @MagicNumber("From the robot's wiring as of 2026-02-24")
+    @ManuallySet("From the robot's wiring as of 2026-02-24")
     public static final int kIntakePivot = 41;
     public static final int kIntakeRollers = 40;
     public static final int kFloor = 43;
