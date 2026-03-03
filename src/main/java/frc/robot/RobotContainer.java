@@ -101,7 +101,6 @@ public class RobotContainer {
         driver.rightTrigger().whileTrue(subsystemCommands.feedAndShoot());
         driver.leftTrigger().whileTrue(intake.intakeCommand());
 
-        driver.rightBumper().whileTrue(subsystemCommands.shootManually());
         driver.leftBumper().onTrue(intake.agitateCommand());
 
         driver.povUp().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
@@ -111,6 +110,8 @@ public class RobotContainer {
         driver.povLeft().whileTrue(intake.retractCommand());
 
         driver.b().onTrue(intake.testingCmd());
+
+        driver.a().onTrue(subsystemCommands.manualShot(0.2, 1500));
     }
 
     private void configureManualDriveBindings() {
