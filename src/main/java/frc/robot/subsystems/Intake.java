@@ -226,25 +226,6 @@ public class Intake extends SubsystemBase {
         .withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
     }
 
-    public Command testingCmd() {
-        return Commands.sequence(
-            runOnce(() -> {
-                set(Degrees.of(360));
-                // set(Degrees.of(currAngle + 10));
-                // currAngle += 10;
-                
-                SmartDashboard.putNumber("Curr Angle", currAngle);
-            }
-            ).andThen(
-                Commands.waitUntil(this::isPositionWithinTolerance)
-            )
-
-            // runOnce(() -> {
-            //     set(Position.POSITION_0);
-            // })
-        );
-    }
-
     public Command extendCommand() {
         return Commands.runEnd(
             () -> setPivotPercentOutput(0.1),
