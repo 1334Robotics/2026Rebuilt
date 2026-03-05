@@ -24,4 +24,8 @@ public final class Ports {
     @ManuallySet("As of 2026-02-25")
     public static final int kHoodLeftServo = 0;
     public static final int kHoodRightServo = 9;
+
+    // DIO Ports
+    @ManuallySet
+    public static final int kFeederLimitSwitch = 0;
 }

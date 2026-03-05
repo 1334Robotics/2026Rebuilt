@@ -17,6 +17,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -41,9 +42,11 @@ public class Feeder extends SubsystemBase {
     private final TalonFX motor;
     private final VelocityVoltage velocityRequest = new VelocityVoltage(0).withSlot(0);
     private final VoltageOut voltageRequest = new VoltageOut(0);
+    private final DigitalInput limitSwitch;
 
     public Feeder() {
         motor = new TalonFX(Ports.kFeeder, Ports.kRoboRioCANBus);
+        limitSwitch = new DigitalInput(Ports.kFeederLimitSwitch);
 
         final TalonFXConfiguration config = new TalonFXConfiguration()
             .withMotorOutput(
@@ -84,6 +87,11 @@ public class Feeder extends SubsystemBase {
         );
     }
 
+    /** Returns true when the magnet is detected (switch triggered). */
+    public boolean isTriggered() {
+        return !limitSwitch.get(); // REV magnetic limit switch is active-low
+    }
+
     public Command feedCommand() {
         return startEnd(() -> set(Speed.FEED), () -> setPercentOutput(0));
     }
@@ -94,5 +102,6 @@ public class Feeder extends SubsystemBase {
         builder.addDoubleProperty("RPM", () -> motor.getVelocity().getValue().in(RPM), null);
         builder.addDoubleProperty("Stator Current", () -> motor.getStatorCurrent().getValue().in(Amps), null);
         builder.addDoubleProperty("Supply Current", () -> motor.getSupplyCurrent().getValue().in(Amps), null);
+        builder.addBooleanProperty("Limit Switch", this::isTriggered, null);
     }
 }
