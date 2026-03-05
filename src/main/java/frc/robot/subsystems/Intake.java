@@ -228,7 +228,7 @@ public class Intake extends SubsystemBase {
 
     public Command extendCommand() {
         return Commands.runEnd(
-            () -> setPivotPercentOutput(0.1),
+            () -> setPivotPercentOutput(-0.1),
             () -> setPivotPercentOutput(0),
             this
         );
@@ -236,10 +236,16 @@ public class Intake extends SubsystemBase {
 
     public Command retractCommand() {
         return Commands.runEnd(
-            () -> setPivotPercentOutput(-0.1),
+            () -> setPivotPercentOutput(0.1),
             () -> setPivotPercentOutput(0),
             this
         );
+    }
+
+    public Command testCommand() {
+        return Commands.runOnce(
+            run
+        )
     }
 
     public Command zeroEncoderCommand() {
@@ -252,8 +258,8 @@ public class Intake extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putBoolean("Intake Down", intakeSwitchDown.get());
-        SmartDashboard.putBoolean("Intake Up", intakeSwitchUp.get());
+        SmartDashboard.putBoolean("Intake Down", !intakeSwitchDown.get());
+        SmartDashboard.putBoolean("Intake Up", !intakeSwitchUp.get());
     }
 
     @Override

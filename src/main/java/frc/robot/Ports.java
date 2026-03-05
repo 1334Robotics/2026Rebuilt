@@ -7,7 +7,7 @@ import frc.util.annotations.ManuallySet;
 public final class Ports {
     // CAN Buses
     @ManuallySet public static final CANBus kRoboRioCANBus = new CANBus("");
-    @ManuallySet public static final CANBus kCANivoreCANBus = new CANBus("CANivore");
+    @ManuallySet public static final CANBus kCANivoreCANBus = new CANBus("");
 
     // Talon FX IDs
     @ManuallySet("From the robot's wiring as of 2026-02-24")
@@ -27,6 +27,6 @@ public final class Ports {
 
     // Limit Switches
     @ManuallySet("As of 2026-03-05")
-    public static final int kIntakeDownSwitch = 8;
-    public static final int kIntakeUpSwitch = 9;
+    public static final int kIntakeDownSwitch = 9;
+    public static final int kIntakeUpSwitch = 8;
 }
