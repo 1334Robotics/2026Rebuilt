@@ -24,6 +24,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
@@ -35,8 +36,10 @@ import frc.util.annotations.MagicNumber;
 
 public class Intake extends SubsystemBase {
     public enum Speed {
-        @MagicNumber STOP(0),
-        @MagicNumber INTAKE(0.8);
+        @MagicNumber
+        STOP(0),
+        @MagicNumber
+        INTAKE(0.8);
 
         private final double percentOutput;
 
@@ -50,15 +53,23 @@ public class Intake extends SubsystemBase {
     }
 
     public enum Position {
-        @MagicNumber HOMED(110),
-        @MagicNumber STOWED(100),
-        @MagicNumber INTAKE(-4),
-        @MagicNumber AGITATE(20),
+        @MagicNumber
+        HOMED(110),
+        @MagicNumber
+        STOWED(100),
+        @MagicNumber
+        INTAKE(-4),
+        @MagicNumber
+        AGITATE(20),
 
-        @MagicNumber POSITION_0(0),
-        @MagicNumber POSITION_1(720),
-        @MagicNumber POSITION_2(60),
-        @MagicNumber POSITION_3(30);
+        @MagicNumber
+        POSITION_0(0),
+        @MagicNumber
+        POSITION_1(720),
+        @MagicNumber
+        POSITION_2(60),
+        @MagicNumber
+        POSITION_3(30);
 
         private final double degrees;
 
@@ -79,6 +90,8 @@ public class Intake extends SubsystemBase {
     private final VoltageOut pivotVoltageRequest = new VoltageOut(0);
     private final MotionMagicVoltage pivotMotionMagicRequest = new MotionMagicVoltage(0).withSlot(0);
     private final VoltageOut rollerVoltageRequest = new VoltageOut(0);
+    private final DigitalInput limitSwitchDown;
+    private final DigitalInput limitSwitchUp;
 
     private boolean isHomed = false;
     private int currAngle = 0;
@@ -86,6 +99,8 @@ public class Intake extends SubsystemBase {
     public Intake() {
         pivotMotor = new TalonFX(Ports.kIntakePivot, Ports.kCANivoreCANBus);
         rollerMotor = new TalonFX(Ports.kIntakeRollers, Ports.kRoboRioCANBus);
+        limitSwitchDown = new DigitalInput(Ports.kIntakeLimitSwitchDown);
+        limitSwitchUp = new DigitalInput(Ports.kIntakeLimitSwitchUp);
         configurePivotMotor();
         configureRollerMotor();
         SmartDashboard.putData(this);
@@ -94,52 +109,47 @@ public class Intake extends SubsystemBase {
 
     private void configurePivotMotor() {
         final TalonFXConfiguration config = new TalonFXConfiguration()
-            .withMotorOutput(
-                new MotorOutputConfigs()
-                    .withInverted(InvertedValue.CounterClockwise_Positive)
-                    .withNeutralMode(NeutralModeValue.Brake)
-            )
-            .withCurrentLimits(
-                new CurrentLimitsConfigs()
-                    .withStatorCurrentLimit(Amps.of(120))
-                    .withStatorCurrentLimitEnable(true)
-                    .withSupplyCurrentLimit(Amps.of(70))
-                    .withSupplyCurrentLimitEnable(true)
-            )
-            .withFeedback(
-                new FeedbackConfigs()
-                    .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
-                    .withSensorToMechanismRatio(kPivotReduction)
-            )
-            .withMotionMagic(
-                new MotionMagicConfigs()
-                    .withMotionMagicCruiseVelocity(kMaxPivotSpeed)
-                    .withMotionMagicAcceleration(kMaxPivotSpeed.per(Second))
-            )
-            .withSlot0(
-                new Slot0Configs()
-                    .withKP(300)
-                    .withKI(0)
-                    .withKD(0)
-                    .withKV(12.0 / kMaxPivotSpeed.in(RotationsPerSecond)) // 12 volts when requesting max RPS
-            );
+                .withMotorOutput(
+                        new MotorOutputConfigs()
+                                .withInverted(InvertedValue.CounterClockwise_Positive)
+                                .withNeutralMode(NeutralModeValue.Brake))
+                .withCurrentLimits(
+                        new CurrentLimitsConfigs()
+                                .withStatorCurrentLimit(Amps.of(120))
+                                .withStatorCurrentLimitEnable(true)
+                                .withSupplyCurrentLimit(Amps.of(70))
+                                .withSupplyCurrentLimitEnable(true))
+                .withFeedback(
+                        new FeedbackConfigs()
+                                .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
+                                .withSensorToMechanismRatio(kPivotReduction))
+                .withMotionMagic(
+                        new MotionMagicConfigs()
+                                .withMotionMagicCruiseVelocity(kMaxPivotSpeed)
+                                .withMotionMagicAcceleration(kMaxPivotSpeed.per(Second)))
+                .withSlot0(
+                        new Slot0Configs()
+                                .withKP(300)
+                                .withKI(0)
+                                .withKD(0)
+                                .withKV(12.0 / kMaxPivotSpeed.in(RotationsPerSecond)) // 12 volts when requesting max
+                                                                                      // RPS
+                );
         pivotMotor.getConfigurator().apply(config);
     }
 
     private void configureRollerMotor() {
         final TalonFXConfiguration config = new TalonFXConfiguration()
-            .withMotorOutput(
-                new MotorOutputConfigs()
-                    .withInverted(InvertedValue.Clockwise_Positive)
-                    .withNeutralMode(NeutralModeValue.Brake)
-            )
-            .withCurrentLimits(
-                new CurrentLimitsConfigs()
-                    .withStatorCurrentLimit(Amps.of(120))
-                    .withStatorCurrentLimitEnable(true)
-                    .withSupplyCurrentLimit(Amps.of(70))
-                    .withSupplyCurrentLimitEnable(true)
-            );
+                .withMotorOutput(
+                        new MotorOutputConfigs()
+                                .withInverted(InvertedValue.Clockwise_Positive)
+                                .withNeutralMode(NeutralModeValue.Brake))
+                .withCurrentLimits(
+                        new CurrentLimitsConfigs()
+                                .withStatorCurrentLimit(Amps.of(120))
+                                .withStatorCurrentLimitEnable(true)
+                                .withSupplyCurrentLimit(Amps.of(70))
+                                .withSupplyCurrentLimitEnable(true));
         rollerMotor.getConfigurator().apply(config);
     }
 
@@ -151,119 +161,120 @@ public class Intake extends SubsystemBase {
 
     private void setPivotPercentOutput(double percentOutput) {
         pivotMotor.setControl(
-            pivotVoltageRequest
-                .withOutput(Volts.of(percentOutput * 12.0))
-        );
+                pivotVoltageRequest
+                        .withOutput(Volts.of(percentOutput * 12.0)));
     }
 
     public void set(Position position) {
         pivotMotor.setControl(
-            pivotMotionMagicRequest
-                .withPosition(position.angle())
-        );
+                pivotMotionMagicRequest
+                        .withPosition(position.angle()));
     }
 
     public void set(Angle angle) {
         pivotMotor.setControl(
-            pivotMotionMagicRequest
-                .withPosition(angle)
-        );
+                pivotMotionMagicRequest
+                        .withPosition(angle));
     }
 
     public void set(Speed speed) {
         rollerMotor.setControl(
-            rollerVoltageRequest
-                .withOutput(speed.voltage())
-        );
+                rollerVoltageRequest
+                        .withOutput(speed.voltage()));
     }
 
     public Command intakeCommand() {
         return startEnd(
-            () -> {
-                set(Position.INTAKE);
-                set(Speed.INTAKE);
-            },
-            () -> set(Speed.STOP)
-        );
+                () -> {
+                    set(Position.INTAKE);
+                    set(Speed.INTAKE);
+                },
+                () -> set(Speed.STOP));
     }
 
     public Command agitateCommand() {
         return runOnce(() -> set(Speed.INTAKE))
-            .andThen(
-                Commands.sequence(
-                    runOnce(() -> set(Position.AGITATE)),
-                    Commands.waitUntil(this::isPositionWithinTolerance),
-                    runOnce(() -> set(Position.INTAKE)),
-                    Commands.waitUntil(this::isPositionWithinTolerance)
-                )
-                .repeatedly()
-            )
-            .handleInterrupt(() -> {
-                set(Position.INTAKE);
-                set(Speed.STOP);
-            });
+                .andThen(
+                        Commands.sequence(
+                                runOnce(() -> set(Position.AGITATE)),
+                                Commands.waitUntil(this::isPositionWithinTolerance),
+                                runOnce(() -> set(Position.INTAKE)),
+                                Commands.waitUntil(this::isPositionWithinTolerance))
+                                .repeatedly())
+                .handleInterrupt(() -> {
+                    set(Position.INTAKE);
+                    set(Speed.STOP);
+                });
     }
 
     public Command homingCommand() {
         return Commands.sequence(
-            runOnce(() -> setPivotPercentOutput(0.1)),
-            Commands.waitUntil(() -> pivotMotor.getSupplyCurrent().getValue().in(Amps) > 6),
-            runOnce(() -> {
-                pivotMotor.setPosition(Position.HOMED.angle());
-                isHomed = true;
-                set(Position.STOWED);
-            })
-        )
-        .unless(() -> isHomed)
-        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
+                runOnce(() -> setPivotPercentOutput(0.1)),
+                Commands.waitUntil(() -> pivotMotor.getSupplyCurrent().getValue().in(Amps) > 6),
+                runOnce(() -> {
+                    pivotMotor.setPosition(Position.HOMED.angle());
+                    isHomed = true;
+                    set(Position.STOWED);
+                }))
+                .unless(() -> isHomed)
+                .withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
     }
 
     public Command testingCmd() {
         return Commands.sequence(
-            runOnce(() -> {
-                set(Degrees.of(360));
-                // set(Degrees.of(currAngle + 10));
-                // currAngle += 10;
-                
-                SmartDashboard.putNumber("Curr Angle", currAngle);
-            }
-            ).andThen(
-                Commands.waitUntil(this::isPositionWithinTolerance)
-            )
+                runOnce(() -> {
+                    set(Degrees.of(360));
+                    // set(Degrees.of(currAngle + 10));
+                    // currAngle += 10;
 
-            // runOnce(() -> {
-            //     set(Position.POSITION_0);
-            // })
+                    SmartDashboard.putNumber("Curr Angle", currAngle);
+                }).andThen(
+                        Commands.waitUntil(this::isPositionWithinTolerance))
+
+        // runOnce(() -> {
+        // set(Position.POSITION_0);
+        // })
         );
     }
 
-
     public Command extendCommand() {
         return Commands.runEnd(
-            () -> setPivotPercentOutput(0.1),
-            () -> setPivotPercentOutput(0),
-            this
-        );
+                () -> setPivotPercentOutput(0.1),
+                () -> setPivotPercentOutput(0),
+                this);
     }
 
     public Command retractCommand() {
         return Commands.runEnd(
-            () -> setPivotPercentOutput(-0.1),
-            () -> setPivotPercentOutput(0),
-            this
-        );
+                () -> setPivotPercentOutput(-0.1),
+                () -> setPivotPercentOutput(0),
+                this);
     }
 
     public Command zeroEncoderCommand() {
         return runOnce(() -> pivotMotor.setPosition(pivotMotor.getPosition().getValue()));
     }
 
+    /** Returns true when the intake is fully deployed (down). */
+    public boolean isDown() {
+        return !limitSwitchDown.get(); // REV magnetic limit switch is active-low
+    }
+
+    /** Returns true when the intake is fully retracted (up). */
+    public boolean isUp() {
+        return !limitSwitchUp.get(); // REV magnetic limit switch is active-low
+    }
+
     @Override
     public void initSendable(SendableBuilder builder) {
-        builder.addStringProperty("Command", () -> getCurrentCommand() != null ? getCurrentCommand().getName() : "null", null);
+        builder.addStringProperty("Command", () -> getCurrentCommand() != null ? getCurrentCommand().getName() : "null",
+                null);
         builder.addDoubleProperty("Angle (degrees)", () -> pivotMotor.getPosition().getValue().in(Degrees), null);
         builder.addDoubleProperty("RPM", () -> rollerMotor.getVelocity().getValue().in(RPM), null);
-        builder.addDoubleProperty("Pivot Supply Current", () -> pivotMotor.getSupplyCurrent().getValue().in(Amps), null);
-        builder.addDoubleProperty("Roller Supply Current", () -> rollerMotor.getSupplyCurrent().getValue().in(Amps), null);
+        builder.addDoubleProperty("Pivot Supply Current", () -> pivotMotor.getSupplyCurrent().getValue().in(Amps),
+                null);
+        builder.addDoubleProperty("Roller Supply Current", () -> rollerMotor.getSupplyCurrent().getValue().in(Amps),
+                null);
+        builder.addStringProperty("Position", () -> isDown() ? "Down" : isUp() ? "Up" : "Unknown", null);
     }
 }

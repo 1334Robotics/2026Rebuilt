@@ -17,7 +17,6 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -42,54 +41,44 @@ public class Feeder extends SubsystemBase {
     private final TalonFX motor;
     private final VelocityVoltage velocityRequest = new VelocityVoltage(0).withSlot(0);
     private final VoltageOut voltageRequest = new VoltageOut(0);
-    private final DigitalInput limitSwitch;
 
     public Feeder() {
         motor = new TalonFX(Ports.kFeeder, Ports.kRoboRioCANBus);
-        limitSwitch = new DigitalInput(Ports.kFeederLimitSwitch);
 
         final TalonFXConfiguration config = new TalonFXConfiguration()
-            .withMotorOutput(
-                new MotorOutputConfigs()
-                    .withInverted(InvertedValue.CounterClockwise_Positive)
-                    .withNeutralMode(NeutralModeValue.Coast)
-            )
-            .withCurrentLimits(
-                new CurrentLimitsConfigs()
-                    .withStatorCurrentLimit(Amps.of(120))
-                    .withStatorCurrentLimitEnable(true)
-                    .withSupplyCurrentLimit(Amps.of(50))
-                    .withSupplyCurrentLimitEnable(true)
-            )
-            .withSlot0(
-                new Slot0Configs()
-                    .withKP(1)
-                    .withKI(0)
-                    .withKD(0)
-                    .withKV(12.0 / KrakenX60.kFreeSpeed.in(RotationsPerSecond)) // 12 volts when requesting max RPS
-            );
-        
+                .withMotorOutput(
+                        new MotorOutputConfigs()
+                                .withInverted(InvertedValue.CounterClockwise_Positive)
+                                .withNeutralMode(NeutralModeValue.Coast))
+                .withCurrentLimits(
+                        new CurrentLimitsConfigs()
+                                .withStatorCurrentLimit(Amps.of(120))
+                                .withStatorCurrentLimitEnable(true)
+                                .withSupplyCurrentLimit(Amps.of(50))
+                                .withSupplyCurrentLimitEnable(true))
+                .withSlot0(
+                        new Slot0Configs()
+                                .withKP(1)
+                                .withKI(0)
+                                .withKD(0)
+                                .withKV(12.0 / KrakenX60.kFreeSpeed.in(RotationsPerSecond)) // 12 volts when requesting
+                                                                                            // max RPS
+                );
+
         motor.getConfigurator().apply(config);
         SmartDashboard.putData(this);
     }
 
     public void set(Speed speed) {
         motor.setControl(
-            velocityRequest
-                .withVelocity(speed.angularVelocity())
-        );
+                velocityRequest
+                        .withVelocity(speed.angularVelocity()));
     }
 
     public void setPercentOutput(double percentOutput) {
         motor.setControl(
-            voltageRequest
-                .withOutput(Volts.of(percentOutput * 12.0))
-        );
-    }
-
-    /** Returns true when the magnet is detected (switch triggered). */
-    public boolean isTriggered() {
-        return !limitSwitch.get(); // REV magnetic limit switch is active-low
+                voltageRequest
+                        .withOutput(Volts.of(percentOutput * 12.0)));
     }
 
     public Command feedCommand() {
@@ -98,10 +87,10 @@ public class Feeder extends SubsystemBase {
 
     @Override
     public void initSendable(SendableBuilder builder) {
-        builder.addStringProperty("Command", () -> getCurrentCommand() != null ? getCurrentCommand().getName() : "null", null);
+        builder.addStringProperty("Command", () -> getCurrentCommand() != null ? getCurrentCommand().getName() : "null",
+                null);
         builder.addDoubleProperty("RPM", () -> motor.getVelocity().getValue().in(RPM), null);
         builder.addDoubleProperty("Stator Current", () -> motor.getStatorCurrent().getValue().in(Amps), null);
         builder.addDoubleProperty("Supply Current", () -> motor.getSupplyCurrent().getValue().in(Amps), null);
-        builder.addBooleanProperty("Limit Switch", this::isTriggered, null);
     }
 }
