@@ -24,6 +24,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
@@ -80,12 +81,19 @@ public class Intake extends SubsystemBase {
     private final MotionMagicVoltage pivotMotionMagicRequest = new MotionMagicVoltage(0).withSlot(0);
     private final VoltageOut rollerVoltageRequest = new VoltageOut(0);
 
+    private final DigitalInput intakeSwitchDown;
+    private final DigitalInput intakeSwitchUp;
+
     private boolean isHomed = false;
     private int currAngle = 0;
 
     public Intake() {
         pivotMotor = new TalonFX(Ports.kIntakePivot, Ports.kCANivoreCANBus);
         rollerMotor = new TalonFX(Ports.kIntakeRollers, Ports.kRoboRioCANBus);
+
+        intakeSwitchDown = new DigitalInput(Ports.kIntakeDownSwitch);
+        intakeSwitchUp = new DigitalInput(Ports.kIntakeUpSwitch);
+
         configurePivotMotor();
         configureRollerMotor();
         SmartDashboard.putData(this);
@@ -237,7 +245,6 @@ public class Intake extends SubsystemBase {
         );
     }
 
-
     public Command extendCommand() {
         return Commands.runEnd(
             () -> setPivotPercentOutput(0.1),
@@ -256,6 +263,16 @@ public class Intake extends SubsystemBase {
 
     public Command zeroEncoderCommand() {
         return runOnce(() -> pivotMotor.setPosition(pivotMotor.getPosition().getValue()));
+    }
+
+    public boolean isIntakeDown() {
+        return intakeSwitchDown.get() && !intakeSwitchUp.get();
+    }
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putBoolean("Intake Down", intakeSwitchDown.get());
+        SmartDashboard.putBoolean("Intake Up", intakeSwitchUp.get());
     }
 
     @Override
