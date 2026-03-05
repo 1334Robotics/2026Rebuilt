@@ -266,6 +266,12 @@ public class Intake extends SubsystemBase {
     }
 
     @Override
+    public void periodic() {
+        SmartDashboard.putBoolean("Intake Down", isDown());
+        SmartDashboard.putBoolean("Intake Up", isUp());
+    }
+
+    @Override
     public void initSendable(SendableBuilder builder) {
         builder.addStringProperty("Command", () -> getCurrentCommand() != null ? getCurrentCommand().getName() : "null",
                 null);
