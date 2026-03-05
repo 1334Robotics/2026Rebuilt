@@ -28,6 +28,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.LED;
 import frc.util.SwerveTelemetry;
 
 /**
@@ -45,6 +46,7 @@ public class RobotContainer {
     private final Hood hood = new Hood();
     private final Hanger hanger = new Hanger();
     private final Limelight limelight = new Limelight("limelight");
+    private final LED led = new LED();
 
     private final SwerveTelemetry swerveTelemetry = new SwerveTelemetry(Driving.kMaxSpeed.in(MetersPerSecond));
     
@@ -91,6 +93,7 @@ public class RobotContainer {
     private void configureBindings() {
         configureManualDriveBindings();
         limelight.setDefaultCommand(updateVisionCommand());
+        led.setColor(led.kGreen, 0, 7);
 
         // RobotModeTriggers.autonomous().or(RobotModeTriggers.teleop())
         //     .onTrue(intake.homingCommand())
