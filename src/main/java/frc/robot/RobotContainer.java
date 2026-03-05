@@ -109,6 +109,8 @@ public class RobotContainer {
         driver.povRight().whileTrue(intake.extendCommand());
         driver.povLeft().whileTrue(intake.retractCommand());
 
+        driver.b().onTrue(intake.testCommand());
+
         driver.a().onTrue(subsystemCommands.manualShot(0.2, 1500));
     }
 
