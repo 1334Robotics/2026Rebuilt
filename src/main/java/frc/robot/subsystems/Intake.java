@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -22,6 +23,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -85,7 +87,8 @@ public class Intake extends SubsystemBase {
     private final DigitalInput intakeSwitchUp;
 
     private boolean isHomed = false;
-    private int currAngle = 0;
+    private final int pivotTolerance = 40;
+    private final Angle targetAngle = Degree.of(185);
 
     public Intake() {
         pivotMotor = new TalonFX(Ports.kIntakePivot, Ports.kCANivoreCANBus);
@@ -153,8 +156,8 @@ public class Intake extends SubsystemBase {
 
     private boolean isPositionWithinTolerance() {
         final Angle currentPosition = pivotMotor.getPosition().getValue();
-        final Angle targetPosition = pivotMotionMagicRequest.getPositionMeasure();
-        return currentPosition.isNear(targetPosition, kPositionTolerance);
+
+        return currentPosition.isNear(targetAngle, pivotTolerance);
     }
 
     private void setPivotPercentOutput(double percentOutput) {
@@ -243,9 +246,18 @@ public class Intake extends SubsystemBase {
     }
 
     public Command testCommand() {
-        return Commands.runOnce(
-            run
-        )
+        return Commands.sequence(
+            runOnce(() -> set(targetAngle)),
+            Commands.waitSeconds(2),
+            runOnce(() -> set(Degrees.of(0)))
+        );
+    }
+
+    public boolean isVelocityWithinTolerance() {
+        Angle currentVelocity = pivotMotor.getPosition().getValue();
+        final Angle targetVelocity = Degree.of(40);
+
+        return currentVelocity.isNear(targetVelocity, pivotTolerance);
     }
 
     public Command zeroEncoderCommand() {
