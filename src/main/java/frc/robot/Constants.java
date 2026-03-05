@@ -11,6 +11,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
 import frc.robot.generated.TunerConstants;
 import frc.util.annotations.MagicNumber;
+import frc.util.annotations.ManuallySet;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -29,5 +30,9 @@ public final class Constants {
 
     public static class KrakenX60 {
         @MagicNumber public static final AngularVelocity kFreeSpeed = RPM.of(6000);
+    }
+
+    public static class CANdle {
+        @ManuallySet public static final int CANdleID = 99; //CHANGE ME based on the CAN ID of the LED
     }
 }
