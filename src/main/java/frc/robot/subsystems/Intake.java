@@ -87,7 +87,7 @@ public class Intake extends SubsystemBase {
     private final DigitalInput intakeSwitchUp;
 
     private boolean isHomed = false;
-    private final int pivotTolerance = 40;
+    private final double pivotTolerance = 0.1;
     private final Angle targetAngle = Degree.of(185);
 
     public Intake() {
@@ -253,11 +253,11 @@ public class Intake extends SubsystemBase {
         );
     }
 
-    public boolean isVelocityWithinTolerance() {
-        Angle currentVelocity = pivotMotor.getPosition().getValue();
-        final Angle targetVelocity = Degree.of(40);
+    public boolean isAngleWithinTolerance() {
+        final Angle currentAngle = pivotMotor.getPosition().getValue();
+        final Angle targetAngle = pivotMotionMagicRequest.getPositionMeasure();
 
-        return currentVelocity.isNear(targetVelocity, pivotTolerance);
+        return currentAngle.isNear(targetAngle, pivotTolerance);
     }
 
     public Command zeroEncoderCommand() {
