@@ -87,8 +87,6 @@ public class Intake extends SubsystemBase {
     private final DigitalInput intakeSwitchUp;
 
     private boolean isHomed = false;
-    private final double pivotTolerance = 0.1;
-    private final Angle targetAngle = Degree.of(185);
 
     public Intake() {
         pivotMotor = new TalonFX(Ports.kIntakePivot, Ports.kCANivoreCANBus);
@@ -100,7 +98,6 @@ public class Intake extends SubsystemBase {
         configurePivotMotor();
         configureRollerMotor();
         SmartDashboard.putData(this);
-        SmartDashboard.putString("Intake Angle", pivotMotor.getPosition().getValue().toString());
     }
 
     private void configurePivotMotor() {
@@ -156,8 +153,8 @@ public class Intake extends SubsystemBase {
 
     private boolean isPositionWithinTolerance() {
         final Angle currentPosition = pivotMotor.getPosition().getValue();
-
-        return currentPosition.isNear(targetAngle, pivotTolerance);
+        final Angle targetPosition = pivotMotionMagicRequest.getPositionMeasure();
+        return currentPosition.isNear(targetPosition, kPositionTolerance);
     }
 
     private void setPivotPercentOutput(double percentOutput) {
@@ -247,31 +244,24 @@ public class Intake extends SubsystemBase {
 
     public Command testCommand() {
         return Commands.sequence(
-            runOnce(() -> set(targetAngle)),
-            Commands.waitSeconds(2),
+            runOnce(() -> set(Degree.of(-180))),
+            Commands.waitUntil(this::isPositionWithinTolerance),
             runOnce(() -> set(Degrees.of(0)))
         );
-    }
-
-    public boolean isAngleWithinTolerance() {
-        final Angle currentAngle = pivotMotor.getPosition().getValue();
-        final Angle targetAngle = pivotMotionMagicRequest.getPositionMeasure();
-
-        return currentAngle.isNear(targetAngle, pivotTolerance);
     }
 
     public Command zeroEncoderCommand() {
         return runOnce(() -> pivotMotor.setPosition(pivotMotor.getPosition().getValue()));
     }
 
-    public boolean isIntakeDown() {
-        return intakeSwitchDown.get() && !intakeSwitchUp.get();
+    public boolean isPivotZeroed() {
+        return !intakeSwitchUp.get() && intakeSwitchDown.get();
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putBoolean("Intake Down", !intakeSwitchDown.get());
-        SmartDashboard.putBoolean("Intake Up", !intakeSwitchUp.get());
+        SmartDashboard.putNumber("Intake Angle", pivotMotor.getPosition().getValue().in(Degrees));
+        SmartDashboard.putBoolean("Intake Zeroed", isPivotZeroed());
     }
 
     @Override
