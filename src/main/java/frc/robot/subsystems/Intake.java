@@ -251,7 +251,7 @@ public class Intake extends SubsystemBase {
     }
 
     public Command zeroEncoderCommand() {
-        return runOnce(() -> pivotMotor.setPosition(pivotMotor.getPosition().getValue()));
+        return runOnce(() -> pivotMotor.setPosition(Position.HOMED.angle()));
     }
 
     public boolean isPivotZeroed() {
