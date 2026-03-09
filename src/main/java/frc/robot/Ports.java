@@ -7,7 +7,7 @@ import frc.util.annotations.ManuallySet;
 public final class Ports {
     // CAN Buses
     @ManuallySet public static final CANBus kRoboRioCANBus = new CANBus("");
-    @ManuallySet public static final CANBus kCANivoreCANBus = new CANBus("");
+    @ManuallySet public static final CANBus kCANivoreCANBus = new CANBus("CANivore");
 
     // Talon FX IDs
     @ManuallySet("From the robot's wiring as of 2026-02-24")
