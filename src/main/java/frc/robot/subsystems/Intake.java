@@ -23,7 +23,6 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -35,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.KrakenX60;
 import frc.robot.Ports;
 import frc.util.annotations.MagicNumber;
+import frc.util.annotations.ManuallySet;
 
 public class Intake extends SubsystemBase {
     public enum Speed {
@@ -74,8 +74,8 @@ public class Intake extends SubsystemBase {
         }
     }
 
-    @MagicNumber private static final double kPivotReduction = 50.0;
-    private static final AngularVelocity kMaxPivotSpeed = KrakenX60.kFreeSpeed.div(kPivotReduction);
+    @ManuallySet private static final double kPivotReduction = 50.0;
+    private static final AngularVelocity kMaxPivotSpeed = KrakenX60.kFreeSpeed.div(kPivotReduction).times(0.05);
     private static final Angle kPositionTolerance = Degrees.of(5);
 
     private final TalonFX pivotMotor, rollerMotor;
@@ -87,6 +87,7 @@ public class Intake extends SubsystemBase {
     private final DigitalInput intakeSwitchUp;
 
     private boolean isHomed = false;
+    private boolean state = false;
 
     public Intake() {
         pivotMotor = new TalonFX(Ports.kIntakePivot, Ports.kRoboRioCANBus);
@@ -98,6 +99,7 @@ public class Intake extends SubsystemBase {
         configurePivotMotor();
         configureRollerMotor();
         SmartDashboard.putData(this);
+        SmartDashboard.putNumber("Intake Set Angle", -180);
     }
 
     private void configurePivotMotor() {
@@ -215,7 +217,7 @@ public class Intake extends SubsystemBase {
     public Command homingCommand() {
         return Commands.sequence(
             runOnce(() -> setPivotPercentOutput(0.1)),
-            Commands.waitUntil(() -> pivotMotor.getSupplyCurrent().getValue().in(Amps) > 6),
+            Commands.waitUntil(() -> isPivotZeroed()),
             runOnce(() -> {
                 pivotMotor.setPosition(Position.HOMED.angle());
                 isHomed = true;
@@ -243,10 +245,15 @@ public class Intake extends SubsystemBase {
     }
 
     public Command testCommand() {
+        /**
+         * This method is a testing command, and will probably be removed. If it isnt removed, then yap
+         */
         return Commands.sequence(
-            runOnce(() -> set(Degree.of(-180))),
-            Commands.waitUntil(this::isPositionWithinTolerance),
-            runOnce(() -> set(Degrees.of(0)))
+            runOnce(() -> {
+                set(state ? Position.STOWED : Position.INTAKE);
+            }),
+            Commands.waitUntil(() -> isPositionWithinTolerance() || (state ? isPivotZeroed() : isPivotDown())),
+            runOnce(() -> state = !state)
         );
     }
 
@@ -258,10 +265,16 @@ public class Intake extends SubsystemBase {
         return !intakeSwitchUp.get() && intakeSwitchDown.get();
     }
 
+    public boolean isPivotDown() {
+        return !intakeSwitchDown.get() && intakeSwitchUp.get();
+    }
+
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Intake Angle", pivotMotor.getPosition().getValue().in(Degrees));
-        SmartDashboard.putBoolean("Intake Zeroed", isPivotZeroed());
+        SmartDashboard.putBoolean("Intake Down", isPivotDown());
+        SmartDashboard.putBoolean("Intake Up", isPivotZeroed());
+        SmartDashboard.putBoolean("State", state);
     }
 
     @Override
