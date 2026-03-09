@@ -190,7 +190,7 @@ public class Intake extends SubsystemBase {
     public Command intakeCommand() {
         return startEnd(
             () -> {
-                // set(Position.INTAKE);
+                set(Position.INTAKE);
                 set(Speed.INTAKE);
             },
             () -> set(Speed.STOP)

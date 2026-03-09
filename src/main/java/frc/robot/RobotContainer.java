@@ -113,7 +113,7 @@ public class RobotContainer {
 
         driver.b().onTrue(intake.testCommand());
 
-        driver.a().onTrue(subsystemCommands.manualShot(0.77, 4500));
+        driver.a().whileTrue(subsystemCommands.aimAndShoot()); // 0.77, 4500
     }
 
     private void configureManualDriveBindings() {
