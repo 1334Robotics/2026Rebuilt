@@ -47,8 +47,8 @@ public class TunerConstants {
     // The steer motor uses any SwerveModule.SteerRequestType control request with the
     // output type specified by SwerveModuleConstants.SteerMotorClosedLoOutput
     private static final Slot0Configs steerGains = new Slot0Configs()
-        .withKP(35).withKI(0).withKD(0)
-        .withKS(0).withKV(0).withKA(0)
+        .withKP(100).withKI(0).withKD(0.5)
+        .withKS(0.1).withKV(1.16).withKA(0)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
@@ -97,8 +97,7 @@ public class TunerConstants {
 
     // Theoretical free speed (m/s) at 12 V applied output;
     // This needs to be tuned to your individual robot
-    // @MagicNumber public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(5.42);
-    @MagicNumber public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(2.0);
+    @MagicNumber public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(5.42);
 
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
     // This may need to be tuned to your individual robot
