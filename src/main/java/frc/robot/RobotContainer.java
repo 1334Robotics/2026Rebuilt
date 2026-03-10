@@ -108,8 +108,8 @@ public class RobotContainer {
         driver.povUp().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
         driver.povDown().onTrue(hanger.positionCommand(Hanger.Position.HUNG));
 
-        driver.povRight().whileTrue(intake.extendCommand());
-        driver.povLeft().whileTrue(intake.retractCommand());
+        driver.povRight().whileTrue(intake.manualExtendCommand());
+        driver.povLeft().whileTrue(intake.manualRetractCommand());
 
         driver.b().onTrue(intake.testCommand());
 

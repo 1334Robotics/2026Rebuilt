@@ -228,7 +228,7 @@ public class Intake extends SubsystemBase {
         .withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
     }
 
-    public Command extendCommand() {
+    public Command manualExtendCommand() {
         return Commands.runEnd(
             () -> setPivotPercentOutput(-0.1),
             () -> setPivotPercentOutput(0),
@@ -236,7 +236,7 @@ public class Intake extends SubsystemBase {
         );
     }
 
-    public Command retractCommand() {
+    public Command manualRetractCommand() {
         return Commands.runEnd(
             () -> setPivotPercentOutput(0.1),
             () -> setPivotPercentOutput(0),
