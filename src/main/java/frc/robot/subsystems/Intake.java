@@ -253,7 +253,10 @@ public class Intake extends SubsystemBase {
                 set(state ? Position.STOWED : Position.INTAKE);
             }),
             Commands.waitUntil(() -> isPositionWithinTolerance() || (state ? isPivotZeroed() : isPivotDown())),
-            runOnce(() -> state = !state)
+            runOnce(() -> {
+                setPivotPercentOutput(0);
+                state = !state;
+            })
         );
     }
 
