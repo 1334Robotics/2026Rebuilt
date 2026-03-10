@@ -51,6 +51,7 @@ public class RobotContainer {
     private final SwerveTelemetry swerveTelemetry = new SwerveTelemetry(Driving.kMaxSpeed.in(MetersPerSecond));
     
     private final CommandXboxController driver = new CommandXboxController(0);
+    private final CommandXboxController operator = new CommandXboxController(1);
 
     private final AutoRoutines autoRoutines = new AutoRoutines(
         swerve,
@@ -105,15 +106,26 @@ public class RobotContainer {
 
         driver.leftBumper().onTrue(intake.agitateCommand());
 
-        driver.povUp().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
-        driver.povDown().onTrue(hanger.positionCommand(Hanger.Position.HUNG));
+        //driver.povUp().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
+        //driver.povDown().onTrue(hanger.positionCommand(Hanger.Position.HUNG));
 
-        driver.povRight().whileTrue(intake.manualExtendCommand());
-        driver.povLeft().whileTrue(intake.manualRetractCommand());
+        operator.povRight().whileTrue(intake.extendCommand());
+        operator.povLeft().whileTrue(intake.retractCommand());
 
         driver.b().onTrue(intake.testCommand());
 
         driver.a().whileTrue(subsystemCommands.aimAndShoot()); // 0.77, 4500
+
+        operator.leftTrigger().whileTrue(intake.intakeCommand());
+        operator.rightTrigger().whileTrue(subsystemCommands.aimAndShoot());
+
+        operator.rightBumper().whileTrue(subsystemCommands.feedAndShoot());
+
+
+        operator.povUp().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
+        operator.povDown().onTrue(hanger.positionCommand(Hanger.Position.HUNG));
+
+        operator.a().whileTrue(subsystemCommands.manualShot(0.77, 4500));
     }
 
     private void configureManualDriveBindings() {
