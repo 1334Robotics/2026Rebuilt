@@ -87,7 +87,7 @@ public class Intake extends SubsystemBase {
     private final DigitalInput intakeSwitchUp;
 
     private boolean isHomed = false;
-    private boolean state = false;
+    private Position intakePivotRequest = Position.STOWED; // where we last set the intake to
 
     public Intake() {
         pivotMotor = new TalonFX(Ports.kIntakePivot, Ports.kRoboRioCANBus);
@@ -216,7 +216,7 @@ public class Intake extends SubsystemBase {
 
     public Command homingCommand() {
         return Commands.sequence(
-            runOnce(() -> setPivotPercentOutput(0.1)),
+            runOnce(() -> setPivotPercentOutput(0.025)),
             Commands.waitUntil(() -> isPivotZeroed()),
             runOnce(() -> {
                 pivotMotor.setPosition(Position.HOMED.angle());
@@ -250,13 +250,16 @@ public class Intake extends SubsystemBase {
          */
         return Commands.sequence(
             runOnce(() -> {
-                set(state ? Position.STOWED : Position.INTAKE);
+                intakePivotRequest = (intakePivotRequest == Position.STOWED) ? Position.INTAKE : Position.STOWED;
+                set(intakePivotRequest);
             }),
-            Commands.waitUntil(() -> isPositionWithinTolerance() || (state ? isPivotZeroed() : isPivotDown())),
-            runOnce(() -> {
-                setPivotPercentOutput(0);
-                state = !state;
-            })
+            Commands.waitUntil(() -> 
+                isPositionWithinTolerance() || 
+                ((intakePivotRequest == Position.INTAKE) 
+                    ? isPivotDown()
+                    : isPivotZeroed())
+            ),
+            runOnce(() -> setPivotPercentOutput(0))
         );
     }
 
@@ -277,7 +280,8 @@ public class Intake extends SubsystemBase {
         SmartDashboard.putNumber("Intake Angle", pivotMotor.getPosition().getValue().in(Degrees));
         SmartDashboard.putBoolean("Intake Down", isPivotDown());
         SmartDashboard.putBoolean("Intake Up", isPivotZeroed());
-        SmartDashboard.putBoolean("State", state);
+        SmartDashboard.putBoolean("Intake State", (intakePivotRequest == Position.STOWED) ? true : false);
+        SmartDashboard.putBoolean("Homed", isHomed);
     }
 
     @Override

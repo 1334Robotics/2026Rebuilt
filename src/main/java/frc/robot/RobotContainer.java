@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Driving;
 import frc.robot.commands.AutoRoutines;
@@ -106,11 +107,8 @@ public class RobotContainer {
 
         driver.leftBumper().onTrue(intake.agitateCommand());
 
-        //driver.povUp().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
-        //driver.povDown().onTrue(hanger.positionCommand(Hanger.Position.HUNG));
-
-        operator.povRight().whileTrue(intake.extendCommand());
-        operator.povLeft().whileTrue(intake.retractCommand());
+        operator.povRight().whileTrue(intake.manualExtendCommand());
+        operator.povLeft().whileTrue(intake.manualRetractCommand());
 
         driver.b().onTrue(intake.testCommand());
 
@@ -120,7 +118,6 @@ public class RobotContainer {
         operator.rightTrigger().whileTrue(subsystemCommands.aimAndShoot());
 
         operator.rightBumper().whileTrue(subsystemCommands.feedAndShoot());
-
 
         operator.povUp().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
         operator.povDown().onTrue(hanger.positionCommand(Hanger.Position.HUNG));
