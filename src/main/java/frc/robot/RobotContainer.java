@@ -15,11 +15,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Driving;
 import frc.robot.commands.AutoRoutines;
 import frc.robot.commands.ManualDriveCommand;
 import frc.robot.commands.SubsystemCommands;
+import frc.robot.subsystems.DriverInfo;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Floor;
 import frc.robot.subsystems.Hanger;
@@ -46,11 +48,16 @@ public class RobotContainer {
     private final Hood hood = new Hood();
     private final Hanger hanger = new Hanger();
     private final Limelight limelight = new Limelight("limelight");
+<<<<<<< HEAD
     private final LED led = new LED();
+=======
+    private final DriverInfo driverInfo = new DriverInfo(() -> swerve.getState().Pose);
+>>>>>>> c9d254989396a781d6bf89554301787612c6f877
 
     private final SwerveTelemetry swerveTelemetry = new SwerveTelemetry(Driving.kMaxSpeed.in(MetersPerSecond));
     
     private final CommandXboxController driver = new CommandXboxController(0);
+    private final CommandXboxController operator = new CommandXboxController(1);
 
     private final AutoRoutines autoRoutines = new AutoRoutines(
         swerve,
@@ -99,21 +106,32 @@ public class RobotContainer {
         //     .onTrue(intake.homingCommand())
         //     .onTrue(hanger.homingCommand());
 
+
+        // Driver controls
         driver.start().onTrue(intake.zeroEncoderCommand());
 
         driver.rightTrigger().whileTrue(subsystemCommands.feedAndShoot());
         driver.leftTrigger().whileTrue(intake.intakeCommand());
 
-        driver.rightBumper().whileTrue(subsystemCommands.shootManually());
         driver.leftBumper().onTrue(intake.agitateCommand());
 
-        driver.povUp().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
-        driver.povDown().onTrue(hanger.positionCommand(Hanger.Position.HUNG));
+        driver.povRight().whileTrue(intake.manualExtendCommand());
+        driver.povLeft().whileTrue(intake.manualRetractCommand());
 
-        driver.povRight().whileTrue(intake.extendCommand());
-        driver.povLeft().whileTrue(intake.retractCommand());
+        driver.b().onTrue(intake.testCommand());
 
-        driver.b().onTrue(intake.testingCmd());
+        driver.a().whileTrue(subsystemCommands.aimAndShoot()); // 0.77, 4500
+
+        // Operator
+        operator.leftTrigger().whileTrue(intake.intakeCommand());
+        operator.rightTrigger().whileTrue(subsystemCommands.aimAndShoot());
+
+        operator.rightBumper().whileTrue(subsystemCommands.feedAndShoot());
+
+        operator.povUp().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
+        operator.povDown().onTrue(hanger.positionCommand(Hanger.Position.HUNG));
+
+        operator.a().whileTrue(subsystemCommands.manualShot(0.77, 4500));
     }
 
     private void configureManualDriveBindings() {
@@ -146,5 +164,9 @@ public class RobotContainer {
             });
         })
         .ignoringDisable(true);
+    }
+
+    public void setIntakePosition() {
+        intake.setIntakePos();
     }
 }
