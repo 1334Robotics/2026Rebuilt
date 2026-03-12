@@ -48,11 +48,8 @@ public class RobotContainer {
     private final Hood hood = new Hood();
     private final Hanger hanger = new Hanger();
     private final Limelight limelight = new Limelight("limelight");
-<<<<<<< HEAD
     private final LED led = new LED();
-=======
     private final DriverInfo driverInfo = new DriverInfo(() -> swerve.getState().Pose);
->>>>>>> c9d254989396a781d6bf89554301787612c6f877
 
     private final SwerveTelemetry swerveTelemetry = new SwerveTelemetry(Driving.kMaxSpeed.in(MetersPerSecond));
     
@@ -100,7 +97,7 @@ public class RobotContainer {
     private void configureBindings() {
         configureManualDriveBindings();
         limelight.setDefaultCommand(updateVisionCommand());
-        led.setColor(led.kGreen, 0, 7);
+        led.setSolidColor(led.kGreen, 0, 7);
 
         // RobotModeTriggers.autonomous().or(RobotModeTriggers.teleop())
         //     .onTrue(intake.homingCommand())

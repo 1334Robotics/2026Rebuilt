@@ -34,7 +34,10 @@ public final class Constants {
         @MagicNumber public static final AngularVelocity kFreeSpeed = RPM.of(6000);
     }
 
-    public static class CANdle {
-        @ManuallySet public static final int CANdleID = 99; //CHANGE ME based on the CAN ID of the LED
+    public static class CANled {
+        @ManuallySet public static final int ID = 99; //CHANGE ME based on the CAN ID of the LED
+        @ManuallySet public static final int Start = 0;
+        @ManuallySet public static final int End = 7;
+
     }
 }
