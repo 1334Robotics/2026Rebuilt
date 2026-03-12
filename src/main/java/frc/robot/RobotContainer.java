@@ -100,6 +100,8 @@ public class RobotContainer {
         //     .onTrue(intake.homingCommand())
         //     .onTrue(hanger.homingCommand());
 
+
+        // Driver controls
         driver.start().onTrue(intake.zeroEncoderCommand());
 
         driver.rightTrigger().whileTrue(subsystemCommands.feedAndShoot());
@@ -107,13 +109,14 @@ public class RobotContainer {
 
         driver.leftBumper().onTrue(intake.agitateCommand());
 
-        operator.povRight().whileTrue(intake.manualExtendCommand());
-        operator.povLeft().whileTrue(intake.manualRetractCommand());
+        driver.povRight().whileTrue(intake.manualExtendCommand());
+        driver.povLeft().whileTrue(intake.manualRetractCommand());
 
         driver.b().onTrue(intake.testCommand());
 
         driver.a().whileTrue(subsystemCommands.aimAndShoot()); // 0.77, 4500
 
+        // Operator
         operator.leftTrigger().whileTrue(intake.intakeCommand());
         operator.rightTrigger().whileTrue(subsystemCommands.aimAndShoot());
 
@@ -155,5 +158,9 @@ public class RobotContainer {
             });
         })
         .ignoringDisable(true);
+    }
+
+    public void setIntakePosition() {
+        intake.setIntakePos();
     }
 }

@@ -6,6 +6,7 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -45,5 +46,26 @@ public class Robot extends TimedRobot {
         // and running subsystem periodic() methods.  This must be called from the robot's periodic
         // block in order for anything in the Command-based framework to work.
         CommandScheduler.getInstance().run();
+    }
+
+
+    /**
+     * This function is called every time the robot is enabled on teleop.
+     */
+    @Override
+    public void teleopInit() {
+
+        // Scream if intake isn't zeroed
+        m_robotContainer.setIntakePosition();
+    }
+
+    /**
+     * This function is called every time the robot is enabled on autonomous.
+     */
+    @Override
+    public void autonomousInit() {
+
+        // Scream if intake isn't zeroed.
+        m_robotContainer.setIntakePosition();
     }
 }

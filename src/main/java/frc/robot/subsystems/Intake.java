@@ -26,6 +26,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
@@ -75,7 +76,7 @@ public class Intake extends SubsystemBase {
     }
 
     @ManuallySet private static final double kPivotReduction = 50.0;
-    private static final AngularVelocity kMaxPivotSpeed = KrakenX60.kFreeSpeed.div(kPivotReduction).times(0.05);
+    private static final AngularVelocity kMaxPivotSpeed = KrakenX60.kFreeSpeed.div(kPivotReduction).times(0.10);
     private static final Angle kPositionTolerance = Degrees.of(5);
 
     private final TalonFX pivotMotor, rollerMotor;
@@ -190,7 +191,7 @@ public class Intake extends SubsystemBase {
     public Command intakeCommand() {
         return startEnd(
             () -> {
-                set(Position.INTAKE);
+                // set(Position.INTAKE);
                 set(Speed.INTAKE);
             },
             () -> set(Speed.STOP)
@@ -202,7 +203,7 @@ public class Intake extends SubsystemBase {
             .andThen(
                 Commands.sequence(
                     runOnce(() -> set(Position.AGITATE)),
-                    Commands.waitUntil(this::isPositionWithinTolerance),
+                    Commands.waitUntil(() -> isPositionWithinTolerance()),
                     runOnce(() -> set(Position.INTAKE)),
                     Commands.waitUntil(this::isPositionWithinTolerance)
                 )
@@ -214,7 +215,7 @@ public class Intake extends SubsystemBase {
             });
     }
 
-    public Command homingCommand() {
+    public Command homingCommand() { // don't use
         return Commands.sequence(
             runOnce(() -> setPivotPercentOutput(0.025)),
             Commands.waitUntil(() -> isPivotZeroed()),
@@ -264,7 +265,9 @@ public class Intake extends SubsystemBase {
     }
 
     public Command zeroEncoderCommand() {
-        return runOnce(() -> pivotMotor.setPosition(Position.HOMED.angle()));
+        return runOnce(() -> {
+            pivotMotor.setPosition(Position.HOMED.angle());
+        });
     }
 
     public boolean isPivotZeroed() {
@@ -275,14 +278,27 @@ public class Intake extends SubsystemBase {
         return !intakeSwitchDown.get() && intakeSwitchUp.get();
     }
 
+    public void setIntakePos() {
+        if(isPivotZeroed()) {
+            intakePivotRequest = Position.STOWED;
+        } else if (isPivotDown()) {
+            intakePivotRequest = Position.INTAKE;
+        } else {
+            DriverStation.reportWarning("The intake pivot position could not be read!", false);
+        }
+    }
+
+
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Intake Angle", pivotMotor.getPosition().getValue().in(Degrees));
         SmartDashboard.putBoolean("Intake Down", isPivotDown());
         SmartDashboard.putBoolean("Intake Up", isPivotZeroed());
-        SmartDashboard.putBoolean("Intake State", (intakePivotRequest == Position.STOWED) ? true : false);
+        SmartDashboard.putBoolean("Intake Stowed", (intakePivotRequest == Position.STOWED) ? true : false);
         SmartDashboard.putBoolean("Homed", isHomed);
     }
+
+    
 
     @Override
     public void initSendable(SendableBuilder builder) {
