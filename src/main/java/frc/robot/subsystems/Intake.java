@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -134,7 +133,9 @@ public class Intake extends SubsystemBase {
                     .withKD(0)
                     .withKV(12.0 / kMaxPivotSpeed.in(RotationsPerSecond)) // 12 volts when requesting max RPS
             );
+
         pivotMotor.getConfigurator().apply(config);
+        zeroEncoderCommand();
     }
 
     private void configureRollerMotor() {
@@ -154,13 +155,19 @@ public class Intake extends SubsystemBase {
         rollerMotor.getConfigurator().apply(config);
     }
 
-    private boolean isPositionWithinTolerance() {
+    public boolean isPositionWithinTolerance() {
         final Angle currentPosition = pivotMotor.getPosition().getValue();
         final Angle targetPosition = pivotMotionMagicRequest.getPositionMeasure();
         return currentPosition.isNear(targetPosition, kPositionTolerance);
     }
 
-    private void setPivotPercentOutput(double percentOutput) {
+    public boolean didHitLimitSwitch() {
+        return ((intakePivotRequest == Position.INTAKE) 
+                    ? isPivotDown()
+                    : isPivotUp());
+    }
+
+    public void setPivotPercentOutput(double percentOutput) {
         pivotMotor.setControl(
             pivotVoltageRequest
                 .withOutput(Volts.of(percentOutput * 12.0))
@@ -190,10 +197,7 @@ public class Intake extends SubsystemBase {
 
     public Command intakeCommand() {
         return startEnd(
-            () -> {
-                // set(Position.INTAKE);
-                set(Speed.INTAKE);
-            },
+            () -> set(Speed.INTAKE),
             () -> set(Speed.STOP)
         );
     }
@@ -205,20 +209,20 @@ public class Intake extends SubsystemBase {
                     runOnce(() -> set(Position.AGITATE)),
                     Commands.waitUntil(() -> isPositionWithinTolerance()),
                     runOnce(() -> set(Position.INTAKE)),
-                    Commands.waitUntil(this::isPositionWithinTolerance)
+                    Commands.waitUntil(() -> isPositionWithinTolerance())
                 )
                 .repeatedly()
             )
             .handleInterrupt(() -> {
-                set(Position.INTAKE);
                 set(Speed.STOP);
+                set(Position.INTAKE);
             });
     }
 
     public Command homingCommand() { // don't use
         return Commands.sequence(
             runOnce(() -> setPivotPercentOutput(0.025)),
-            Commands.waitUntil(() -> isPivotZeroed()),
+            Commands.waitUntil(() -> isPivotUp()),
             runOnce(() -> {
                 pivotMotor.setPosition(Position.HOMED.angle());
                 isHomed = true;
@@ -235,6 +239,7 @@ public class Intake extends SubsystemBase {
             () -> setPivotPercentOutput(0),
             this
         );
+        // return runOnce(() -> set(Position.AGITATE));
     }
 
     public Command manualRetractCommand() {
@@ -243,6 +248,7 @@ public class Intake extends SubsystemBase {
             () -> setPivotPercentOutput(0),
             this
         );
+        // return runOnce(() -> set(Position.INTAKE));
     }
 
     public Command testCommand() {
@@ -251,14 +257,13 @@ public class Intake extends SubsystemBase {
          */
         return Commands.sequence(
             runOnce(() -> {
+                setIntakePos();
                 intakePivotRequest = (intakePivotRequest == Position.STOWED) ? Position.INTAKE : Position.STOWED;
                 set(intakePivotRequest);
             }),
             Commands.waitUntil(() -> 
                 isPositionWithinTolerance() || 
-                ((intakePivotRequest == Position.INTAKE) 
-                    ? isPivotDown()
-                    : isPivotZeroed())
+                didHitLimitSwitch()
             ),
             runOnce(() -> setPivotPercentOutput(0))
         );
@@ -270,7 +275,7 @@ public class Intake extends SubsystemBase {
         });
     }
 
-    public boolean isPivotZeroed() {
+    public boolean isPivotUp() {
         return !intakeSwitchUp.get() && intakeSwitchDown.get();
     }
 
@@ -279,7 +284,7 @@ public class Intake extends SubsystemBase {
     }
 
     public void setIntakePos() {
-        if(isPivotZeroed()) {
+        if(isPivotUp()) {
             intakePivotRequest = Position.STOWED;
         } else if (isPivotDown()) {
             intakePivotRequest = Position.INTAKE;
@@ -291,9 +296,9 @@ public class Intake extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Intake Angle", pivotMotor.getPosition().getValue().in(Degrees));
+        SmartDashboard.putNumber("Intake Angle", pivotMotor.getPosition().getValueAsDouble());
         SmartDashboard.putBoolean("Intake Down", isPivotDown());
-        SmartDashboard.putBoolean("Intake Up", isPivotZeroed());
+        SmartDashboard.putBoolean("Intake Up", isPivotUp());
         SmartDashboard.putBoolean("Intake Stowed", (intakePivotRequest == Position.STOWED) ? true : false);
         SmartDashboard.putBoolean("Homed", isHomed);
     }

@@ -15,6 +15,7 @@ import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Floor;
@@ -88,7 +89,9 @@ public final class AutoRoutines {
         routine.observe(hanger::isHomed).onTrue(
             Commands.sequence(
                 Commands.waitSeconds(0.5),
-                intake.runOnce(() -> intake.set(Intake.Position.INTAKE))
+                intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
+                Commands.waitUntil(() -> intake.isPositionWithinTolerance() || intake.didHitLimitSwitch()),
+                intake.runOnce(() -> intake.setPivotPercentOutput(0))
             )
         );
 

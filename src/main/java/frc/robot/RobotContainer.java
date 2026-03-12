@@ -107,7 +107,7 @@ public class RobotContainer {
         driver.rightTrigger().whileTrue(subsystemCommands.feedAndShoot());
         driver.leftTrigger().whileTrue(intake.intakeCommand());
 
-        driver.leftBumper().onTrue(intake.agitateCommand());
+        driver.leftBumper().whileTrue(intake.agitateCommand());
 
         driver.povRight().whileTrue(intake.manualExtendCommand());
         driver.povLeft().whileTrue(intake.manualRetractCommand());
