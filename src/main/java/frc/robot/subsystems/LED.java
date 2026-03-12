@@ -48,12 +48,12 @@ public class LED extends SubsystemBase{
         m_Led.setControl(new SolidColor(0,  7).withColor(new RGBWColor())); // Sets all LEDs to off
     }
 
-
-    public void setColor(RGBWColor color, int index) {
+    // TODO: add setAnimatedColor functions to introduce animations
+    public void setSolidColor(RGBWColor color, int index) {
         m_Led.setControl(new SolidColor(index, index).withColor(color));
     }
 
-    public void setColor(RGBWColor color, int first, int last) {
+    public void setSolidColor(RGBWColor color, int first, int last) {
         m_Led.setControl(new SolidColor(first, last).withColor(color));
     }
 }
