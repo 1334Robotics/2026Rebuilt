@@ -100,23 +100,11 @@ public class RobotContainer {
         //     .onTrue(intake.homingCommand())
         //     .onTrue(hanger.homingCommand());
 
-
         // Driver controls
-        driver.start().onTrue(intake.zeroEncoderCommand());
-
-        driver.rightTrigger().whileTrue(subsystemCommands.feedAndShoot());
-        driver.leftTrigger().whileTrue(intake.intakeCommand());
-
-        driver.leftBumper().whileTrue(intake.agitateCommand());
-
-        driver.povRight().whileTrue(intake.manualExtendCommand());
-        driver.povLeft().whileTrue(intake.manualRetractCommand());
-
-        driver.b().onTrue(intake.testCommand());
-
-        driver.a().whileTrue(subsystemCommands.aimAndShoot()); // 0.77, 4500
 
         // Operator
+        operator.start().onTrue(intake.zeroEncoderCommand());
+
         operator.leftTrigger().whileTrue(intake.intakeCommand());
         operator.rightTrigger().whileTrue(subsystemCommands.aimAndShoot());
 
@@ -125,7 +113,7 @@ public class RobotContainer {
         operator.povUp().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
         operator.povDown().onTrue(hanger.positionCommand(Hanger.Position.HUNG));
 
-        operator.a().whileTrue(subsystemCommands.manualShot(0.77, 4500));
+        operator.a().whileTrue(subsystemCommands.manualShot(0.88, 4500));
     }
 
     private void configureManualDriveBindings() {
@@ -141,7 +129,7 @@ public class RobotContainer {
         // driver.b().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(Rotation2d.kCW_90deg)));
         // driver.x().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(Rotation2d.kCCW_90deg)));
 
-        driver.y().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(Rotation2d.kZero)));
+        // driver.y().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(Rotation2d.kZero)));
         driver.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric())); // the "view" button, center left of xbox logo
     }
 
