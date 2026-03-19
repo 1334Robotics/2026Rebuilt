@@ -89,7 +89,10 @@ public final class AutoRoutines {
         routine.observe(hanger::isHomed).onTrue(
             Commands.sequence(
                 Commands.waitSeconds(0.5),
-                intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
+                intake.runOnce(() -> {
+                    intake.intakePivotRequest = Intake.Position.INTAKE;
+                    intake.set(Intake.Position.INTAKE);
+                }),
                 Commands.waitUntil(() -> intake.isPositionWithinTolerance() || intake.didHitLimitSwitch()),
                 intake.runOnce(() -> intake.setPivotPercentOutput(0))
             )

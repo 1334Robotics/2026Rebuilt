@@ -87,7 +87,7 @@ public class Intake extends SubsystemBase {
     private final DigitalInput intakeSwitchUp;
 
     private boolean isHomed = false;
-    private Position intakePivotRequest = Position.STOWED; // where we last set the intake to
+    public Position intakePivotRequest = Position.STOWED; // where we last set the intake to
 
     public Intake() {
         pivotMotor = new TalonFX(Ports.kIntakePivot, Ports.kRoboRioCANBus);
