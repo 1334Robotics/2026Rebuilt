@@ -300,7 +300,6 @@ public class Intake extends SubsystemBase {
         SmartDashboard.putBoolean("Intake Down", isPivotDown());
         SmartDashboard.putBoolean("Intake Up", isPivotUp());
         SmartDashboard.putBoolean("Intake Stowed", (intakePivotRequest == Position.STOWED) ? true : false);
-        SmartDashboard.putBoolean("Homed", isHomed);
     }
 
     

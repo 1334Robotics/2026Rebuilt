@@ -60,7 +60,7 @@ public class Hanger extends SubsystemBase {
     private final MotionMagicVoltage motionMagicRequest = new MotionMagicVoltage(0).withSlot(0);
     private final VoltageOut voltageRequest = new VoltageOut(0);
 
-    private boolean isHomed = false;
+    private boolean isHomed = true;
 
     public Hanger() {
         motor = new TalonFX(Ports.kHanger, Ports.kRoboRioCANBus);
@@ -141,6 +141,11 @@ public class Hanger extends SubsystemBase {
     private Distance motorAngleToExtension(Angle motorAngle) {
         final Measure<DistanceUnit> extensionMeasure = motorAngle.timesRatio(kHangerExtensionPerMotorAngle);
         return Inches.of(extensionMeasure.in(Inches)); // Promote from Measure<DistanceUnit> to Distance
+    }
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putBoolean("Hanger Homed", isHomed);
     }
 
     @Override
