@@ -85,7 +85,7 @@ public class RobotContainer {
     
     /**
      * Use this method to define your trigger->command mappings. Triggers can be created via the
-     * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
+     * {@link Trigger#Trigger(java.util.function.BooleanSupp lier)} constructor with an arbitrary
      * predicate, or via the named factories in {@link
      * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
      * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
@@ -112,7 +112,14 @@ public class RobotContainer {
         operator.povUp().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
         operator.povDown().onTrue(hanger.positionCommand(Hanger.Position.HUNG));
 
+        // operator.povLeft().onTrue(intake.manualRetractCommand());
+        // operator.povRight().onTrue(intake.manualExtendCommand());
+
         operator.a().whileTrue(subsystemCommands.manualShot(0.88, 4500));
+        // operator.a().onTrue(intake.runOnce(() -> {
+        //             intake.intakePivotRequest = Intake.Position.INTAKE;
+        //             intake.set(Intake.Position.INTAKE);
+        //         }));
     }
 
     private void configureManualDriveBindings() {

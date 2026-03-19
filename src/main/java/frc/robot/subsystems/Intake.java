@@ -135,7 +135,7 @@ public class Intake extends SubsystemBase {
             );
 
         pivotMotor.getConfigurator().apply(config);
-        zeroEncoderCommand();
+        pivotMotor.setPosition(Position.HOMED.angle());
     }
 
     private void configureRollerMotor() {
