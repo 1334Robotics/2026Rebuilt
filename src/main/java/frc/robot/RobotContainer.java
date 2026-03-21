@@ -108,6 +108,7 @@ public class RobotContainer {
         operator.rightTrigger().whileTrue(subsystemCommands.aimAndShoot());
 
         operator.rightBumper().whileTrue(subsystemCommands.feedAndShoot());
+        operator.leftBumper().whileTrue(subsystemCommands.manualShot(0.2, 3100));
 
         operator.povUp().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
         operator.povDown().onTrue(hanger.positionCommand(Hanger.Position.HUNG));
@@ -125,11 +126,14 @@ public class RobotContainer {
         // operator.povLeft().onTrue(intake.manualRetractCommand());
         // operator.povRight().onTrue(intake.manualExtendCommand());
 
-        operator.a().whileTrue(subsystemCommands.manualShot(0.88, 4500));
         // operator.a().onTrue(intake.runOnce(() -> {
         //             intake.intakePivotRequest = Intake.Position.INTAKE;
         //             intake.set(Intake.Position.INTAKE);
         //         }));
+        
+        operator.b().whileTrue(shooter.spinUpCommand(3000));
+        
+
     }
 
     private void configureManualDriveBindings() {

@@ -121,7 +121,7 @@ public final class AutoRoutines {
         );
         depotToShootingPose.done().onTrue(
             Commands.sequence(
-                subsystemCommands.aimAndShoot()
+                subsystemCommands.aimAndShoot() 
                     .withTimeout(5),
                 shootingPoseToTower.cmd()
             )
