@@ -112,6 +112,16 @@ public class RobotContainer {
         operator.povUp().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
         operator.povDown().onTrue(hanger.positionCommand(Hanger.Position.HUNG));
 
+        operator.povLeft().onTrue(Commands.sequence(
+                Commands.waitSeconds(0.5),
+                intake.runOnce(() -> {
+                    intake.intakePivotRequest = Intake.Position.INTAKE;
+                    intake.set(Intake.Position.INTAKE);
+                }),
+                Commands.waitUntil(() -> intake.isPositionWithinTolerance() || intake.didHitLimitSwitch()),
+                intake.runOnce(() -> intake.setPivotPercentOutput(0))
+            ));
+
         // operator.povLeft().onTrue(intake.manualRetractCommand());
         // operator.povRight().onTrue(intake.manualExtendCommand());
 
