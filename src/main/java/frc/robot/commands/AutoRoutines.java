@@ -86,8 +86,21 @@ public final class AutoRoutines {
             )
         );
 
-        // routine.observe(hanger::isHomed).onTrue(
-        //     Commands.sequence(
+        routine.observe(hanger::isHomed).onTrue(
+            Commands.sequence(
+                Commands.waitSeconds(0.5),
+                intake.runOnce(() -> {
+                    intake.intakePivotRequest = Intake.Position.INTAKE;
+                    intake.set(Intake.Position.INTAKE);
+                }),
+                Commands.waitUntil(() -> intake.isPositionWithinTolerance() || intake.didHitLimitSwitch()),
+                intake.runOnce(() -> intake.setPivotPercentOutput(0))
+            )
+        );
+
+        startToOutpost.doneDelayed(1).onTrue(outpostToDepot.cmd());
+        
+        // outpostToDepot.atTimeBeforeEnd(3).onTrue(Commands.sequence(
         //         Commands.waitSeconds(0.5),
         //         intake.runOnce(() -> {
         //             intake.intakePivotRequest = Intake.Position.INTAKE;
@@ -95,15 +108,7 @@ public final class AutoRoutines {
         //         }),
         //         Commands.waitUntil(() -> intake.isPositionWithinTolerance() || intake.didHitLimitSwitch()),
         //         intake.runOnce(() -> intake.setPivotPercentOutput(0))
-        //     )
-        // );
-
-        startToOutpost.doneDelayed(1).onTrue(outpostToDepot.cmd());
-        
-        outpostToDepot.atTimeBeforeEnd(3).onTrue(intake.runOnce(() -> {
-                    intake.intakePivotRequest = Intake.Position.INTAKE;
-                    intake.set(Intake.Position.INTAKE);
-                }));
+        //     ));
         outpostToDepot.atTimeBeforeEnd(1).onTrue(intake.intakeCommand());
         outpostToDepot.doneDelayed(0.1).onTrue(depotToShootingPose.cmd());
 
@@ -123,8 +128,8 @@ public final class AutoRoutines {
         );
 
         shootingPoseToTower.active().whileTrue(limelight.idle());
-        shootingPoseToTower.active().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
-        shootingPoseToTower.done().onTrue(hanger.positionCommand(Hanger.Position.HUNG));
+        // shootingPoseToTower.active().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
+        // shootingPoseToTower.done().onTrue(hanger.positionCommand(Hanger.Position.HUNG));
 
         return routine;
     }
