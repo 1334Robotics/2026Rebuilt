@@ -122,6 +122,15 @@ public class RobotContainer {
                 Commands.waitUntil(() -> intake.isPositionWithinTolerance() || intake.didHitLimitSwitch()),
                 intake.runOnce(() -> intake.setPivotPercentOutput(0))
             ));
+        operator.povLeft().onTrue(Commands.sequence(
+                Commands.waitSeconds(0.5),
+                intake.runOnce(() -> {
+                    intake.intakePivotRequest = Intake.Position.STOWED;
+                    intake.set(Intake.Position.STOWED);
+                }),
+                Commands.waitUntil(() -> intake.isPositionWithinTolerance() || intake.didHitLimitSwitch()),
+                intake.runOnce(() -> intake.setPivotPercentOutput(0))
+            ));
 
         // operator.povLeft().onTrue(intake.manualRetractCommand());
         // operator.povRight().onTrue(intake.manualExtendCommand());
