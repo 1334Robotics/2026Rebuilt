@@ -113,7 +113,8 @@ public class RobotContainer {
         operator.povUp().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
         operator.povDown().onTrue(hanger.positionCommand(Hanger.Position.HUNG));
 
-        operator.povLeft().onTrue(Commands.sequence(
+        // tested and working
+        operator.povRight().onTrue(Commands.sequence(
                 Commands.waitSeconds(0.5),
                 intake.runOnce(() -> {
                     intake.intakePivotRequest = Intake.Position.INTAKE;
@@ -122,11 +123,12 @@ public class RobotContainer {
                 Commands.waitUntil(() -> intake.isPositionWithinTolerance() || intake.didHitLimitSwitch()),
                 intake.runOnce(() -> intake.setPivotPercentOutput(0))
             ));
+        // untested, but should work
         operator.povLeft().onTrue(Commands.sequence(
                 Commands.waitSeconds(0.5),
                 intake.runOnce(() -> {
-                    intake.intakePivotRequest = Intake.Position.STOWED;
-                    intake.set(Intake.Position.STOWED);
+                    intake.intakePivotRequest = Intake.Position.HOMED;
+                    intake.set(Intake.Position.HOMED);
                 }),
                 Commands.waitUntil(() -> intake.isPositionWithinTolerance() || intake.didHitLimitSwitch()),
                 intake.runOnce(() -> intake.setPivotPercentOutput(0))
@@ -138,10 +140,10 @@ public class RobotContainer {
         // operator.a().onTrue(intake.runOnce(() -> {
         //             intake.intakePivotRequest = Intake.Position.INTAKE;
         //             intake.set(Intake.Position.INTAKE);
-        //         }));
+        //         })); 
         
         operator.b().whileTrue(shooter.spinUpCommand(3000));
-        
+        operator.a().whileTrue(subsystemCommands.manualShot(0.44, 4500));
 
     }
 

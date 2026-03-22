@@ -49,7 +49,7 @@ public class Limelight extends SubsystemBase {
         );
 
         @MagicNumber
-        final Matrix<N3, N1> standardDeviations = VecBuilder.fill(0.1, 0.1, 10.0);
+        final Matrix<N3, N1> standardDeviations = VecBuilder.fill(0.1, 0.1, 0.1);
 
         posePublisher.set(poseEstimate_MegaTag2.pose);
 
