@@ -68,6 +68,7 @@ public final class AutoRoutines {
 
     public void configure() {
         autoChooser.addRoutine("Outpost and Depot", this::outpostAndDepotRoutine);
+        autoChooser.addRoutine("Left Manual Shoot", this::leftManualShootRoutine);
         SmartDashboard.putData("Auto Chooser", autoChooser);
         RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
     }
@@ -130,6 +131,24 @@ public final class AutoRoutines {
         shootingPoseToTower.active().whileTrue(limelight.idle());
         // shootingPoseToTower.active().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
         // shootingPoseToTower.done().onTrue(hanger.positionCommand(Hanger.Position.HUNG));
+
+        return routine;
+    }
+
+    private AutoRoutine leftManualShootRoutine() {
+        final AutoRoutine routine = autoFactory.newRoutine("Left Manual Shoot");
+        final AutoTrajectory leftManualShoot = routine.trajectory("LeftManualShoot");
+
+        routine.active().onTrue(
+            Commands.sequence(
+                leftManualShoot.resetOdometry(),
+                leftManualShoot.cmd()
+            )
+        );
+
+        leftManualShoot.done().onTrue(
+            subsystemCommands.manualShot(0.1, 3100)
+        );
 
         return routine;
     }
