@@ -144,6 +144,7 @@ public class RobotContainer {
         
         operator.b().whileTrue(shooter.spinUpCommand(3000));
         operator.a().whileTrue(subsystemCommands.manualShot(0.44, 4500));
+        operator.x().whileTrue(subsystemCommands.manualShot(0.88, 4500));
 
     }
 
