@@ -190,6 +190,10 @@ public class Intake extends SubsystemBase {
         );
     }
 
+    public boolean currentHigh() {
+        return pivotMotor.getSupplyCurrent().getValue().in(Amps) > 6;
+    }
+
     public Command intakeCommand() {
         return startEnd(
             () -> set(Speed.INTAKE),
@@ -202,9 +206,9 @@ public class Intake extends SubsystemBase {
             .andThen(
                 Commands.sequence(
                     runOnce(() -> set(Position.AGITATE)),
-                    Commands.waitUntil(() -> isPositionWithinTolerance() || pivotMotor.getSupplyCurrent().getValue().in(Amps) > 6),
+                    Commands.waitUntil(() -> isPositionWithinTolerance() || currentHigh()),
                     runOnce(() -> set(Position.INTAKE)),
-                    Commands.waitUntil(() -> isPositionWithinTolerance() || pivotMotor.getSupplyCurrent().getValue().in(Amps) > 6)
+                    Commands.waitUntil(() -> isPositionWithinTolerance() || currentHigh())
                 )
                 .repeatedly()
             )
@@ -217,7 +221,7 @@ public class Intake extends SubsystemBase {
     public Command homingCommand() { // don't use
         return Commands.sequence(
             runOnce(() -> setPivotPercentOutput(0.025)),
-            Commands.waitUntil(() -> pivotMotor.getSupplyCurrent().getValue().in(Amps) > 6),
+            Commands.waitUntil(() -> currentHigh()),
             runOnce(() -> {
                 pivotMotor.setPosition(Position.HOMED.angle());
                 isHomed = true;

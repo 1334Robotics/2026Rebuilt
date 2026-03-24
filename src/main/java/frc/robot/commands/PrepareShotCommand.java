@@ -32,10 +32,12 @@ public class PrepareShotCommand extends Command {
     );
 
     static {
-        // Feels like something that should be tagged
-        distanceToShotMap.put(Inches.of(52.0), new Shot(2800, 0.19));
-        distanceToShotMap.put(Inches.of(114.4), new Shot(3275, 0.40));
-        distanceToShotMap.put(Inches.of(165.5), new Shot(3650, 0.48));
+        // Note: 14 inches from the center to the edge
+        // We found that it's a little short - maybe due to memory inaccuracy
+        // so in traditional fashion, we've just added an offset (currently -20)
+        distanceToShotMap.put(Inches.of(40), new Shot(2800, 0.19));
+        distanceToShotMap.put(Inches.of(146), new Shot(3275, 0.40));
+        distanceToShotMap.put(Inches.of(200), new Shot(3650, 0.48));
     }
 
     private final Shooter shooter;
