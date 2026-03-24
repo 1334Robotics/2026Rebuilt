@@ -56,12 +56,7 @@ public class Intake extends SubsystemBase {
         @MagicNumber HOMED(110),
         @MagicNumber STOWED(100),
         @MagicNumber INTAKE(-4),
-        @MagicNumber AGITATE(20),
-
-        @MagicNumber POSITION_0(0),
-        @MagicNumber POSITION_1(720),
-        @MagicNumber POSITION_2(60),
-        @MagicNumber POSITION_3(30);
+        @MagicNumber AGITATE(20);
 
         private final double degrees;
 
