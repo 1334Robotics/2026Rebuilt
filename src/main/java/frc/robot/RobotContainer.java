@@ -146,6 +146,8 @@ public class RobotContainer {
         operator.a().whileTrue(subsystemCommands.manualShot(0.44, 4500));
         operator.x().whileTrue(subsystemCommands.manualShot(0.88, 4500));
 
+        operator.y().whileTrue(subsystemCommands.manualShot(0.48, 3650));
+
     }
 
     private void configureManualDriveBindings() {
