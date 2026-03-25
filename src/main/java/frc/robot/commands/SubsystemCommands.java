@@ -93,7 +93,8 @@ public final class SubsystemCommands {
     public Command manualShot(double hoodPos, double rpm) {
         return Commands.parallel(
             shooter.spinUpCommand(rpm),
-            hood.positionCommand(hoodPos)
+            hood.positionCommand(hoodPos),
+            Commands.waitUntil(() -> hood.isPositionWithinTolerance())
         ).andThen(feed()).handleInterrupt(() -> shooter.stop());
     }
 
