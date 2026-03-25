@@ -152,7 +152,7 @@ public class Rumble extends SubsystemBase {
             double cyclePosition = (elapsed / 1e6 * currentOperatorRequest.get().frequency) % 1.0;
             value = cyclePosition < 0.5 ? value : 0.0;
         }
-        if (currentOperatorRumble != value) setDriverRumble(value);
+        if (currentOperatorRumble != value) setOperatorRumble(value);
     }
 
 
