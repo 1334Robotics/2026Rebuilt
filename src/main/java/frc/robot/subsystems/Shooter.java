@@ -110,7 +110,7 @@ public class Shooter extends SubsystemBase {
                 Rumble.getInstance().addRequest(
                     new RumbleRequest(Controller.OPERATOR, false, 1.0, 1.0));
 
-                    Rumble.getInstance().addRequest(
+                Rumble.getInstance().addRequest(
                     new RumbleRequest(Controller.DRIVER, false, 1.0, 1.0));
             }));
     }

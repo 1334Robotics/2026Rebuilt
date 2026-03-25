@@ -123,7 +123,7 @@ public class RobotContainer {
                     intake.intakePivotRequest = Intake.Position.INTAKE;
                     intake.set(Intake.Position.INTAKE);
                 }),
-                Commands.waitUntil(() -> intake.isPositionWithinTolerance() || intake.didHitLimitSwitch()),
+                Commands.waitUntil(() -> intake.isPositionWithinTolerance() || intake.didHitLimitSwitch() || intake.currentHigh()),
                 intake.runOnce(() -> intake.setPivotPercentOutput(0))
             ));
         // untested, but should work
@@ -133,7 +133,7 @@ public class RobotContainer {
                     intake.intakePivotRequest = Intake.Position.HOMED;
                     intake.set(Intake.Position.HOMED);
                 }),
-                Commands.waitUntil(() -> intake.isPositionWithinTolerance() || intake.didHitLimitSwitch()),
+                Commands.waitUntil(() -> intake.isPositionWithinTolerance() || intake.didHitLimitSwitch() || intake.currentHigh()),
                 intake.runOnce(() -> intake.setPivotPercentOutput(0))
             ));
 
