@@ -106,9 +106,13 @@ public class Shooter extends SubsystemBase {
     public Command spinUpCommand(double rpm) {
         return runOnce(() -> setRPM(rpm))
             .andThen(Commands.waitUntil(this::isVelocityWithinTolerance))
-            .andThen(this.runOnce(() -> Rumble.getInstance().addRequest(
-                new RumbleRequest(Controller.DRIVER, false, 1.0, 1.0)
-            )));
+            .andThen(this.runOnce(() -> {
+                Rumble.getInstance().addRequest(
+                    new RumbleRequest(Controller.OPERATOR, false, 1.0, 1.0));
+
+                    Rumble.getInstance().addRequest(
+                    new RumbleRequest(Controller.DRIVER, false, 1.0, 1.0));
+            }));
     }
 
     public Command dashboardSpinUpCommand() {
