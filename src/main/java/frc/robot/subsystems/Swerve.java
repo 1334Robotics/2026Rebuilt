@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
+import frc.util.annotations.MagicNumber;
 
 public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
@@ -32,9 +33,9 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     /** Swerve request to apply during field-centric path following */
     private final SwerveRequest.ApplyFieldSpeeds pathFieldSpeedsRequest = new SwerveRequest.ApplyFieldSpeeds();
-    private final PIDController pathXController = new PIDController(10, 0, 0);
-    private final PIDController pathYController = new PIDController(10, 0, 0);
-    private final PIDController pathThetaController = new PIDController(7, 0, 0);
+    @MagicNumber private final PIDController pathXController = new PIDController(10, 0, 0);
+    @MagicNumber private final PIDController pathYController = new PIDController(10, 0, 0);
+    @MagicNumber private final PIDController pathThetaController = new PIDController(7, 0, 0);
 
     public Swerve() {
         super(
@@ -42,10 +43,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             0,
             VecBuilder.fill(0.1, 0.1, 0.1),
             VecBuilder.fill(0.1, 0.1, 0.1),
-            TunerConstants.FrontLeft, 
-            TunerConstants.FrontRight, 
-            TunerConstants.BackLeft, 
-            TunerConstants.BackRight
+            TunerConstants.FrontLeft, // 0
+            TunerConstants.FrontRight, // 1
+            TunerConstants.BackLeft, // 2
+            TunerConstants.BackRight // 3
         );
     }
 

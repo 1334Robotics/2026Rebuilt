@@ -10,6 +10,8 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
 import frc.robot.generated.TunerConstants;
+import frc.util.annotations.MagicNumber;
+import frc.util.annotations.ManuallySet;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -21,12 +23,14 @@ import frc.robot.generated.TunerConstants;
  */
 public final class Constants {
     public static class Driving {
-        public static final LinearVelocity kMaxSpeed = TunerConstants.kSpeedAt12Volts.times(0.1);
-        public static final AngularVelocity kMaxRotationalRate = RotationsPerSecond.of(1);
-        public static final AngularVelocity kPIDRotationDeadband = kMaxRotationalRate.times(0.05);
+        @MagicNumber public static final LinearVelocity kMaxSpeed = TunerConstants.kSpeedAt12Volts.times(1);
+        @MagicNumber public static final AngularVelocity kMaxRotationalRate = RotationsPerSecond.of(1);
+        @MagicNumber public static final AngularVelocity kPIDRotationDeadband = kMaxRotationalRate.times(0.005);
+        @ManuallySet("No clue if this number is okay, just made it up")
+        public static final double epsilon = 1e-6;
     }
 
     public static class KrakenX60 {
-        public static final AngularVelocity kFreeSpeed = RPM.of(6000);
+        @MagicNumber public static final AngularVelocity kFreeSpeed = RPM.of(6000);
     }
 }

@@ -15,6 +15,7 @@ import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Floor;
@@ -67,6 +68,7 @@ public final class AutoRoutines {
 
     public void configure() {
         autoChooser.addRoutine("Outpost and Depot", this::outpostAndDepotRoutine);
+        autoChooser.addRoutine("Left Manual Shoot", this::leftManualShootRoutine);
         SmartDashboard.putData("Auto Chooser", autoChooser);
         RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
     }
@@ -88,12 +90,26 @@ public final class AutoRoutines {
         routine.observe(hanger::isHomed).onTrue(
             Commands.sequence(
                 Commands.waitSeconds(0.5),
-                intake.runOnce(() -> intake.set(Intake.Position.INTAKE))
+                intake.runOnce(() -> {
+                    intake.intakePivotRequest = Intake.Position.INTAKE;
+                    intake.set(Intake.Position.INTAKE);
+                }),
+                Commands.waitUntil(() -> intake.isPositionWithinTolerance() || intake.didHitLimitSwitch()),
+                intake.runOnce(() -> intake.setPivotPercentOutput(0))
             )
         );
 
         startToOutpost.doneDelayed(1).onTrue(outpostToDepot.cmd());
-
+        
+        // outpostToDepot.atTimeBeforeEnd(3).onTrue(Commands.sequence(
+        //         Commands.waitSeconds(0.5),
+        //         intake.runOnce(() -> {
+        //             intake.intakePivotRequest = Intake.Position.INTAKE;
+        //             intake.set(Intake.Position.INTAKE);
+        //         }),
+        //         Commands.waitUntil(() -> intake.isPositionWithinTolerance() || intake.didHitLimitSwitch()),
+        //         intake.runOnce(() -> intake.setPivotPercentOutput(0))
+        //     ));
         outpostToDepot.atTimeBeforeEnd(1).onTrue(intake.intakeCommand());
         outpostToDepot.doneDelayed(0.1).onTrue(depotToShootingPose.cmd());
 
@@ -106,15 +122,33 @@ public final class AutoRoutines {
         );
         depotToShootingPose.done().onTrue(
             Commands.sequence(
-                subsystemCommands.aimAndShoot()
+                subsystemCommands.aimAndShoot() 
                     .withTimeout(5),
                 shootingPoseToTower.cmd()
             )
         );
 
         shootingPoseToTower.active().whileTrue(limelight.idle());
-        shootingPoseToTower.active().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
-        shootingPoseToTower.done().onTrue(hanger.positionCommand(Hanger.Position.HUNG));
+        // shootingPoseToTower.active().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
+        // shootingPoseToTower.done().onTrue(hanger.positionCommand(Hanger.Position.HUNG));
+
+        return routine;
+    }
+
+    private AutoRoutine leftManualShootRoutine() {
+        final AutoRoutine routine = autoFactory.newRoutine("Left Manual Shoot");
+        final AutoTrajectory leftManualShoot = routine.trajectory("LeftManualShoot");
+
+        routine.active().onTrue(
+            Commands.sequence(
+                leftManualShoot.resetOdometry(),
+                leftManualShoot.cmd()
+            )
+        );
+
+        leftManualShoot.done().onTrue(
+            subsystemCommands.manualShot(0.1, 3100)
+        );
 
         return routine;
     }

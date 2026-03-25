@@ -13,6 +13,7 @@ import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.PoseEstimate;
+import frc.util.annotations.MagicNumber;
 
 public class Limelight extends SubsystemBase {
     private final String name;
@@ -46,6 +47,8 @@ public class Limelight extends SubsystemBase {
             poseEstimate_MegaTag2.pose.getTranslation(),
             poseEstimate_MegaTag1.pose.getRotation()
         );
+
+        @MagicNumber
         final Matrix<N3, N1> standardDeviations = VecBuilder.fill(0.1, 0.1, 10.0);
 
         posePublisher.set(poseEstimate_MegaTag2.pose);
