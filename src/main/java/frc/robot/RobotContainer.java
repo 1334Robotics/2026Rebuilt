@@ -28,6 +28,7 @@ import frc.robot.subsystems.Hanger;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Limelight;
+import frc.robot.subsystems.Rumble;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Swerve;
 import frc.util.SwerveTelemetry;
@@ -53,6 +54,8 @@ public class RobotContainer {
     
     private final CommandXboxController driver = new CommandXboxController(0);
     private final CommandXboxController operator = new CommandXboxController(1);
+
+    private final Rumble rumble = new Rumble(driver, operator);
 
     private final AutoRoutines autoRoutines = new AutoRoutines(
         swerve,
@@ -120,7 +123,7 @@ public class RobotContainer {
                     intake.intakePivotRequest = Intake.Position.INTAKE;
                     intake.set(Intake.Position.INTAKE);
                 }),
-                Commands.waitUntil(() -> intake.isPositionWithinTolerance() || intake.didHitLimitSwitch()),
+                Commands.waitUntil(() -> intake.isPositionWithinTolerance() || intake.didHitLimitSwitch() || intake.currentHigh()),
                 intake.runOnce(() -> intake.setPivotPercentOutput(0))
             ));
         // untested, but should work
@@ -130,7 +133,7 @@ public class RobotContainer {
                     intake.intakePivotRequest = Intake.Position.HOMED;
                     intake.set(Intake.Position.HOMED);
                 }),
-                Commands.waitUntil(() -> intake.isPositionWithinTolerance() || intake.didHitLimitSwitch()),
+                Commands.waitUntil(() -> intake.isPositionWithinTolerance() || intake.didHitLimitSwitch() || intake.currentHigh()),
                 intake.runOnce(() -> intake.setPivotPercentOutput(0))
             ));
 

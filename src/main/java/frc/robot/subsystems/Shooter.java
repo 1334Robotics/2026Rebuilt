@@ -25,6 +25,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.KrakenX60;
+import frc.robot.subsystems.Rumble.Controller;
+import frc.robot.subsystems.Rumble.RumbleRequest;
 import frc.robot.Ports;
 
 public class Shooter extends SubsystemBase {
@@ -103,7 +105,14 @@ public class Shooter extends SubsystemBase {
 
     public Command spinUpCommand(double rpm) {
         return runOnce(() -> setRPM(rpm))
-            .andThen(Commands.waitUntil(this::isVelocityWithinTolerance));
+            .andThen(Commands.waitUntil(this::isVelocityWithinTolerance))
+            .andThen(this.runOnce(() -> {
+                Rumble.getInstance().addRequest(
+                    new RumbleRequest(Controller.OPERATOR, false, 1.0, 1.0));
+
+                Rumble.getInstance().addRequest(
+                    new RumbleRequest(Controller.DRIVER, false, 1.0, 1.0));
+            }));
     }
 
     public Command dashboardSpinUpCommand() {
