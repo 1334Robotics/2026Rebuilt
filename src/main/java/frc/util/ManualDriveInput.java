@@ -1,5 +1,7 @@
 package frc.util;
 
+import frc.robot.Constants;
+
 public class ManualDriveInput {
     public final double forward;
     public final double left;
@@ -16,10 +18,10 @@ public class ManualDriveInput {
     }
 
     public boolean hasTranslation() {
-        return Math.hypot(forward, left) > 0;
+        return Math.hypot(forward, left) > Constants.Driving.epsilon;
     }
 
     public boolean hasRotation() {
-        return Math.abs(rotation) > 0;
+        return Math.abs(rotation) > Constants.Driving.epsilon;
     }
 }

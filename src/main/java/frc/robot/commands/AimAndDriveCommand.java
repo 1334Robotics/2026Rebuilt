@@ -19,9 +19,10 @@ import frc.robot.subsystems.Swerve;
 import frc.util.DriveInputSmoother;
 import frc.util.GeometryUtil;
 import frc.util.ManualDriveInput;
+import frc.util.annotations.MagicNumber;
 
 public class AimAndDriveCommand extends Command {
-    private static final Angle kAimTolerance = Degrees.of(5);
+    @MagicNumber private static final Angle kAimTolerance = Degrees.of(5);
 
     private final Swerve swerve;
     private final DriveInputSmoother inputSmoother;

@@ -17,13 +17,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Ports;
+import frc.util.annotations.MagicNumber;
 
 public class Hood extends SubsystemBase {
-    private static final Distance kServoLength = Millimeters.of(100);
-    private static final LinearVelocity kMaxServoSpeed = Millimeters.of(20).per(Second);
-    private static final double kMinPosition = 0.01;
-    private static final double kMaxPosition = 0.77;
-    private static final double kPositionTolerance = 0.01;
+    @MagicNumber private static final Distance kServoLength = Millimeters.of(100);
+    @MagicNumber private static final LinearVelocity kMaxServoSpeed = Millimeters.of(20).per(Second);
+    @MagicNumber private static final double kMinPosition = 0.01;
+    @MagicNumber private static final double kMaxPosition = 0.77;
+    @MagicNumber private static final double kPositionTolerance = 0.01;
 
     private final Servo leftServo;
     private final Servo rightServo;

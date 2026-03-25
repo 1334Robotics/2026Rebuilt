@@ -28,10 +28,10 @@ import frc.robot.Constants.KrakenX60;
 import frc.robot.Ports;
 
 public class Shooter extends SubsystemBase {
-    private static final AngularVelocity kVelocityTolerance = RPM.of(100);
+    private static final AngularVelocity kVelocityTolerance = RPM.of(50);
 
     private final TalonFX leftMotor, middleMotor, rightMotor;
-    private final List<TalonFX> motors;
+    public final List<TalonFX> motors;
     private final VelocityVoltage velocityRequest = new VelocityVoltage(0).withSlot(0);
     private final VoltageOut voltageRequest = new VoltageOut(0);
 
@@ -44,7 +44,7 @@ public class Shooter extends SubsystemBase {
         motors = List.of(leftMotor, middleMotor, rightMotor);
 
         configureMotor(leftMotor, InvertedValue.CounterClockwise_Positive);
-        configureMotor(middleMotor, InvertedValue.Clockwise_Positive);
+        configureMotor(middleMotor, InvertedValue.CounterClockwise_Positive);
         configureMotor(rightMotor, InvertedValue.Clockwise_Positive);
 
         SmartDashboard.putData(this);
@@ -113,8 +113,9 @@ public class Shooter extends SubsystemBase {
     public boolean isVelocityWithinTolerance() {
         return motors.stream().allMatch(motor -> {
             final boolean isInVelocityMode = motor.getAppliedControl().equals(velocityRequest);
-            final AngularVelocity currentVelocity = motor.getVelocity().getValue();
+            AngularVelocity currentVelocity = motor.getVelocity().getValue();
             final AngularVelocity targetVelocity = velocityRequest.getVelocityMeasure();
+            if(currentVelocity.magnitude() < 0) currentVelocity = currentVelocity.times(-1);
             return isInVelocityMode && currentVelocity.isNear(targetVelocity, kVelocityTolerance);
         });
     }

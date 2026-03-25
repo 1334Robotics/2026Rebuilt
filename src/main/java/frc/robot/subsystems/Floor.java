@@ -18,11 +18,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Ports;
+import frc.util.annotations.MagicNumber;
 
 public class Floor extends SubsystemBase {
     public enum Speed {
-        STOP(0),
-        FEED(0.83);
+        @MagicNumber STOP(0),
+        @MagicNumber FEED(0.83);
 
         private final double percentOutput;
 

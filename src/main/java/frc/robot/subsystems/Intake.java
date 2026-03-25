@@ -24,6 +24,8 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
@@ -31,11 +33,13 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.KrakenX60;
 import frc.robot.Ports;
+import frc.util.annotations.MagicNumber;
+import frc.util.annotations.ManuallySet;
 
 public class Intake extends SubsystemBase {
     public enum Speed {
-        STOP(0),
-        INTAKE(0.8);
+        @MagicNumber STOP(0),
+        @MagicNumber INTAKE(0.8);
 
         private final double percentOutput;
 
@@ -49,10 +53,10 @@ public class Intake extends SubsystemBase {
     }
 
     public enum Position {
-        HOMED(110),
-        STOWED(100),
-        INTAKE(-4),
-        AGITATE(20);
+        @MagicNumber HOMED(110),
+        @MagicNumber STOWED(100),
+        @MagicNumber INTAKE(-4),
+        @MagicNumber AGITATE(20);
 
         private final double degrees;
 
@@ -65,8 +69,8 @@ public class Intake extends SubsystemBase {
         }
     }
 
-    private static final double kPivotReduction = 50.0;
-    private static final AngularVelocity kMaxPivotSpeed = KrakenX60.kFreeSpeed.div(kPivotReduction);
+    @ManuallySet private static final double kPivotReduction = 50.0;
+    private static final AngularVelocity kMaxPivotSpeed = KrakenX60.kFreeSpeed.div(kPivotReduction).times(0.10);
     private static final Angle kPositionTolerance = Degrees.of(5);
 
     private final TalonFX pivotMotor, rollerMotor;
@@ -74,14 +78,23 @@ public class Intake extends SubsystemBase {
     private final MotionMagicVoltage pivotMotionMagicRequest = new MotionMagicVoltage(0).withSlot(0);
     private final VoltageOut rollerVoltageRequest = new VoltageOut(0);
 
+    private final DigitalInput intakeSwitchDown;
+    private final DigitalInput intakeSwitchUp;
+
     private boolean isHomed = false;
+    public Position intakePivotRequest = Position.STOWED; // where we last set the intake to
 
     public Intake() {
-        pivotMotor = new TalonFX(Ports.kIntakePivot, Ports.kCANivoreCANBus);
+        pivotMotor = new TalonFX(Ports.kIntakePivot, Ports.kRoboRioCANBus);
         rollerMotor = new TalonFX(Ports.kIntakeRollers, Ports.kRoboRioCANBus);
+
+        intakeSwitchDown = new DigitalInput(Ports.kIntakeDownSwitch);
+        intakeSwitchUp = new DigitalInput(Ports.kIntakeUpSwitch);
+
         configurePivotMotor();
         configureRollerMotor();
         SmartDashboard.putData(this);
+        SmartDashboard.putNumber("Intake Set Angle", -180);
     }
 
     private void configurePivotMotor() {
@@ -115,7 +128,9 @@ public class Intake extends SubsystemBase {
                     .withKD(0)
                     .withKV(12.0 / kMaxPivotSpeed.in(RotationsPerSecond)) // 12 volts when requesting max RPS
             );
+
         pivotMotor.getConfigurator().apply(config);
+        pivotMotor.setPosition(Position.HOMED.angle());
     }
 
     private void configureRollerMotor() {
@@ -135,13 +150,19 @@ public class Intake extends SubsystemBase {
         rollerMotor.getConfigurator().apply(config);
     }
 
-    private boolean isPositionWithinTolerance() {
+    public boolean isPositionWithinTolerance() {
         final Angle currentPosition = pivotMotor.getPosition().getValue();
         final Angle targetPosition = pivotMotionMagicRequest.getPositionMeasure();
         return currentPosition.isNear(targetPosition, kPositionTolerance);
     }
 
-    private void setPivotPercentOutput(double percentOutput) {
+    public boolean didHitLimitSwitch() {
+        return ((intakePivotRequest == Position.INTAKE) 
+                    ? isPivotDown()
+                    : isPivotUp());
+    }
+
+    public void setPivotPercentOutput(double percentOutput) {
         pivotMotor.setControl(
             pivotVoltageRequest
                 .withOutput(Volts.of(percentOutput * 12.0))
@@ -155,6 +176,13 @@ public class Intake extends SubsystemBase {
         );
     }
 
+    public void set(Angle angle) {
+        pivotMotor.setControl(
+            pivotMotionMagicRequest
+                .withPosition(angle)
+        );
+    }
+
     public void set(Speed speed) {
         rollerMotor.setControl(
             rollerVoltageRequest
@@ -162,12 +190,13 @@ public class Intake extends SubsystemBase {
         );
     }
 
+    public boolean currentHigh() {
+        return pivotMotor.getSupplyCurrent().getValue().in(Amps) > 6;
+    }
+
     public Command intakeCommand() {
         return startEnd(
-            () -> {
-                set(Position.INTAKE);
-                set(Speed.INTAKE);
-            },
+            () -> set(Speed.INTAKE),
             () -> set(Speed.STOP)
         );
     }
@@ -177,22 +206,22 @@ public class Intake extends SubsystemBase {
             .andThen(
                 Commands.sequence(
                     runOnce(() -> set(Position.AGITATE)),
-                    Commands.waitUntil(this::isPositionWithinTolerance),
+                    Commands.waitUntil(() -> isPositionWithinTolerance() || currentHigh()),
                     runOnce(() -> set(Position.INTAKE)),
-                    Commands.waitUntil(this::isPositionWithinTolerance)
+                    Commands.waitUntil(() -> isPositionWithinTolerance() || currentHigh())
                 )
                 .repeatedly()
             )
             .handleInterrupt(() -> {
-                set(Position.INTAKE);
                 set(Speed.STOP);
+                set(Position.INTAKE);
             });
     }
 
-    public Command homingCommand() {
+    public Command homingCommand() { // don't use
         return Commands.sequence(
-            runOnce(() -> setPivotPercentOutput(0.1)),
-            Commands.waitUntil(() -> pivotMotor.getSupplyCurrent().getValue().in(Amps) > 6),
+            runOnce(() -> setPivotPercentOutput(0.025)),
+            Commands.waitUntil(() -> currentHigh()),
             runOnce(() -> {
                 pivotMotor.setPosition(Position.HOMED.angle());
                 isHomed = true;
@@ -202,6 +231,77 @@ public class Intake extends SubsystemBase {
         .unless(() -> isHomed)
         .withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
     }
+
+    public Command manualExtendCommand() {
+        return Commands.runEnd(
+            () -> setPivotPercentOutput(-0.1),
+            () -> setPivotPercentOutput(0),
+            this
+        );
+        // return runOnce(() -> set(Position.AGITATE));
+    }
+
+    public Command manualRetractCommand() {
+        return Commands.runEnd(
+            () -> setPivotPercentOutput(0.1),
+            () -> setPivotPercentOutput(0),
+            this
+        );
+        // return runOnce(() -> set(Position.INTAKE));
+    }
+
+    public Command testCommand() {
+        /**
+         * This method is a testing command, and will probably be removed. If it isnt removed, then yap
+         */
+        return Commands.sequence(
+            runOnce(() -> {
+                setIntakePos();
+                intakePivotRequest = (intakePivotRequest == Position.STOWED) ? Position.INTAKE : Position.STOWED;
+                set(intakePivotRequest);
+            }),
+            Commands.waitUntil(() -> 
+                isPositionWithinTolerance() || 
+                didHitLimitSwitch()
+            ),
+            runOnce(() -> setPivotPercentOutput(0))
+        );
+    }
+
+    public Command zeroEncoderCommand() {
+        return runOnce(() -> {
+            pivotMotor.setPosition(Position.HOMED.angle());
+        });
+    }
+
+    public boolean isPivotUp() {
+        return !intakeSwitchUp.get() && intakeSwitchDown.get();
+    }
+
+    public boolean isPivotDown() {
+        return !intakeSwitchDown.get() && intakeSwitchUp.get();
+    }
+
+    public void setIntakePos() {
+        if(isPivotUp()) {
+            intakePivotRequest = Position.STOWED;
+        } else if (isPivotDown()) {
+            intakePivotRequest = Position.INTAKE;
+        } else {
+            DriverStation.reportWarning("The intake pivot position could not be read!", false);
+        }
+    }
+
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("Intake Angle", pivotMotor.getPosition().getValueAsDouble());
+        SmartDashboard.putBoolean("Intake Down", isPivotDown());
+        SmartDashboard.putBoolean("Intake Up", isPivotUp());
+        SmartDashboard.putBoolean("Intake Stowed", (intakePivotRequest == Position.STOWED) ? true : false);
+    }
+
+    
 
     @Override
     public void initSendable(SendableBuilder builder) {
