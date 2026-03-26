@@ -31,6 +31,7 @@ import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Rumble;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.Led;
 import frc.util.SwerveTelemetry;
 
 /**
@@ -49,6 +50,7 @@ public class RobotContainer {
     private final Hanger hanger = new Hanger();
     private final Limelight limelight = new Limelight("limelight");
     private final DriverInfo driverInfo = new DriverInfo(() -> swerve.getState().Pose);
+    private final Led led = new Led(7);
 
     private final SwerveTelemetry swerveTelemetry = new SwerveTelemetry(Driving.kMaxSpeed.in(MetersPerSecond));
     
@@ -84,6 +86,7 @@ public class RobotContainer {
         configureBindings();
         autoRoutines.configure();
         swerve.registerTelemetry(swerveTelemetry::telemeterize);
+        led.turnOn();
     }
     
     /**
