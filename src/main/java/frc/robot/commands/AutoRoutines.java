@@ -15,7 +15,6 @@ import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Floor;
@@ -148,9 +147,16 @@ public final class AutoRoutines {
         );
 
         leftManualShoot.done().onTrue(
-            // subsystemCommands.manualShot(0.1, 3100)
-            subsystemCommands.aimAndShoot()
-                .withTimeout(5)
+            Commands.sequence(
+                Commands.waitSeconds(0.5),
+                intake.runOnce(() -> {
+                    intake.intakePivotRequest = Intake.Position.INTAKE;
+                    intake.set(Intake.Position.INTAKE);
+                }),
+                Commands.waitUntil(() -> intake.isPositionWithinTolerance() || intake.didHitLimitSwitch()),
+                intake.runOnce(() -> intake.setPivotPercentOutput(0))
+            ).andThen(subsystemCommands.aimAndShoot()
+                .withTimeout(5))
         );
         return routine;
     }
@@ -167,8 +173,17 @@ public final class AutoRoutines {
         );
 
         midAutoShoot.done().onTrue(
-            subsystemCommands.aimAndShoot()
-                .withTimeout(5)
+            Commands.sequence(
+                Commands.waitSeconds(0.5),
+                intake.runOnce(() -> {
+                    intake.intakePivotRequest = Intake.Position.INTAKE;
+                    intake.set(Intake.Position.INTAKE);
+                }),
+                Commands.waitUntil(() -> intake.isPositionWithinTolerance() || intake.didHitLimitSwitch()),
+                intake.runOnce(() -> intake.setPivotPercentOutput(0))
+            ).andThen(subsystemCommands.aimAndShoot()
+                .withTimeout(5))
+            
         );
 
         return routine;
