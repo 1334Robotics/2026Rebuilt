@@ -50,7 +50,7 @@ public class RobotContainer {
     private final Hanger hanger = new Hanger();
     private final Limelight limelight = new Limelight("limelight");
     private final DriverInfo driverInfo = new DriverInfo(() -> swerve.getState().Pose);
-    private final Led led = new Led(7);
+    private final Led led = new Led(8);
 
     private final SwerveTelemetry swerveTelemetry = new SwerveTelemetry(Driving.kMaxSpeed.in(MetersPerSecond));
     
