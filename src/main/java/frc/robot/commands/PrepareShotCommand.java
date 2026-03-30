@@ -35,10 +35,9 @@ public class PrepareShotCommand extends Command {
         // Note: 14 inches from the center to the edge
         // We found that it's a little short - maybe due to memory inaccuracy
         // so in traditional fashion, we've just added an offset (currently -30)
-        // offset was also added for RPM (Current +150)
-        distanceToShotMap.put(Inches.of(30), new Shot(2950, 0.19));
-        distanceToShotMap.put(Inches.of(136), new Shot(3425, 0.40));
-        distanceToShotMap.put(Inches.of(190), new Shot(3800, 0.48));
+        distanceToShotMap.put(Inches.of(30+6), new Shot(2800-100, 0.19));
+        distanceToShotMap.put(Inches.of(136+6), new Shot(3275-100, 0.40));
+        distanceToShotMap.put(Inches.of(190+6), new Shot(3650-100, 0.48));
     }
 
     private final Shooter shooter;
