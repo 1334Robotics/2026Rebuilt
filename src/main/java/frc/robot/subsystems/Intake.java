@@ -55,8 +55,8 @@ public class Intake extends SubsystemBase {
     public enum Position {
         @MagicNumber HOMED(110),
         @MagicNumber STOWED(100),
-        @MagicNumber INTAKE(-4),
-        @MagicNumber AGITATE(20);
+        @MagicNumber INTAKE(-4+10), // Add 10 to these since intake keeps trying to force down
+        @MagicNumber AGITATE(20+10);
 
         private final double degrees;
 
@@ -205,9 +205,15 @@ public class Intake extends SubsystemBase {
         return runOnce(() -> set(Speed.INTAKE))
             .andThen(
                 Commands.sequence(
-                    runOnce(() -> set(Position.AGITATE)),
+                    runOnce(() -> {
+                        setPivotPercentOutput(0);
+                        set(Position.AGITATE);
+                    }),
                     Commands.waitUntil(() -> isPositionWithinTolerance() || currentHigh()),
-                    runOnce(() -> set(Position.INTAKE)),
+                    runOnce(() -> {
+                        setPivotPercentOutput(0);
+                        set(Position.INTAKE);
+                    }),
                     Commands.waitUntil(() -> isPositionWithinTolerance() || currentHigh())
                 )
                 .repeatedly()
