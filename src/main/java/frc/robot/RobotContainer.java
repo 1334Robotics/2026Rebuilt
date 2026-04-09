@@ -24,7 +24,6 @@ import frc.robot.commands.SubsystemCommands;
 import frc.robot.subsystems.DriverInfo;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Floor;
-import frc.robot.subsystems.Hanger;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Limelight;
@@ -47,7 +46,6 @@ public class RobotContainer {
     private final Feeder feeder = new Feeder();
     private final Shooter shooter = new Shooter();
     private final Hood hood = new Hood();
-    private final Hanger hanger = new Hanger();
     private final Limelight limelight = new Limelight("limelight");
     private final DriverInfo driverInfo = new DriverInfo(() -> swerve.getState().Pose);
     private final Led led = new Led(8);
@@ -66,7 +64,6 @@ public class RobotContainer {
         feeder,
         shooter,
         hood,
-        hanger,
         limelight
     );
     private final SubsystemCommands subsystemCommands = new SubsystemCommands(
@@ -76,7 +73,6 @@ public class RobotContainer {
         feeder,
         shooter,
         hood,
-        hanger,
         () -> -driver.getLeftY(),
         () -> -driver.getLeftX()
     );
@@ -102,9 +98,6 @@ public class RobotContainer {
         configureManualDriveBindings();
         limelight.setDefaultCommand(updateVisionCommand());
 
-        RobotModeTriggers.autonomous().or(RobotModeTriggers.teleop())
-            .onTrue(hanger.homingCommand());
-
         // Driver controls
 
         // Operator
@@ -116,8 +109,6 @@ public class RobotContainer {
         operator.rightBumper().whileTrue(subsystemCommands.feedAndShoot());
         operator.leftBumper().whileTrue(subsystemCommands.manualShot(0.2, 3100));
 
-        operator.povUp().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
-        operator.povDown().onTrue(hanger.positionCommand(Hanger.Position.HUNG));
 
         // tested and working
         operator.povRight().onTrue(Commands.sequence(
