@@ -111,25 +111,9 @@ public class RobotContainer {
 
 
         // tested and working
-        operator.povRight().onTrue(Commands.sequence(
-                Commands.waitSeconds(0.5),
-                intake.runOnce(() -> {
-                    intake.intakePivotRequest = Intake.Position.INTAKE;
-                    intake.set(Intake.Position.INTAKE);
-                }),
-                Commands.waitUntil(() -> intake.isPositionWithinTolerance() || intake.didHitLimitSwitch() || intake.currentHigh()),
-                intake.runOnce(() -> intake.setPivotPercentOutput(0))
-            ));
+        operator.povRight().onTrue(intake.intakeDownCommand());
         // untested, but should work
-        operator.povLeft().onTrue(Commands.sequence(
-                Commands.waitSeconds(0.5),
-                intake.runOnce(() -> {
-                    intake.intakePivotRequest = Intake.Position.HOMED;
-                    intake.set(Intake.Position.HOMED);
-                }),
-                Commands.waitUntil(() -> intake.isPositionWithinTolerance() || intake.didHitLimitSwitch() || intake.currentHigh()),
-                intake.runOnce(() -> intake.setPivotPercentOutput(0))
-            ));
+        operator.povLeft().onTrue(intake.intakeUpCommand());
 
         // operator.povLeft().onTrue(intake.manualRetractCommand());
         // operator.povRight().onTrue(intake.manualExtendCommand());
