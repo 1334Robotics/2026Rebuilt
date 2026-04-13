@@ -190,7 +190,7 @@ public class Intake extends SubsystemBase {
         );
     }
 
-    public boolean currentHigh() {
+    public boolean isAmpSpike() {
         return pivotMotor.getSupplyCurrent().getValue().in(Amps) > 6;
     }
 
@@ -209,12 +209,12 @@ public class Intake extends SubsystemBase {
                         setPivotPercentOutput(0);
                         set(Position.AGITATE);
                     }),
-                    Commands.waitUntil(() -> isPositionWithinTolerance() || currentHigh()),
+                    Commands.waitUntil(() -> isPositionWithinTolerance() || isAmpSpike()),
                     runOnce(() -> {
                         setPivotPercentOutput(0);
                         set(Position.INTAKE);
                     }),
-                    Commands.waitUntil(() -> isPositionWithinTolerance() || currentHigh())
+                    Commands.waitUntil(() -> isPositionWithinTolerance() || isAmpSpike())
                 )
                 .repeatedly()
             )
@@ -227,7 +227,7 @@ public class Intake extends SubsystemBase {
     public Command homingCommand() { // don't use
         return Commands.sequence(
             runOnce(() -> setPivotPercentOutput(0.025)),
-            Commands.waitUntil(() -> currentHigh()),
+            Commands.waitUntil(() -> isAmpSpike()),
             runOnce(() -> {
                 pivotMotor.setPosition(Position.HOMED.angle());
                 isHomed = true;
@@ -244,7 +244,6 @@ public class Intake extends SubsystemBase {
             () -> setPivotPercentOutput(0),
             this
         );
-        // return runOnce(() -> set(Position.AGITATE));
     }
 
     public Command manualRetractCommand() {
@@ -253,26 +252,34 @@ public class Intake extends SubsystemBase {
             () -> setPivotPercentOutput(0),
             this
         );
-        // return runOnce(() -> set(Position.INTAKE));
     }
 
-    public Command testCommand() {
-        /**
-         * This method is a testing command, and will probably be removed. If it isnt removed, then yap
-         */
+
+    public Command intakeDownCommand() {
         return Commands.sequence(
+            Commands.waitSeconds(0.5),
             runOnce(() -> {
-                setIntakePos();
-                intakePivotRequest = (intakePivotRequest == Position.STOWED) ? Position.INTAKE : Position.STOWED;
-                set(intakePivotRequest);
+                intakePivotRequest = Intake.Position.INTAKE;
+                set(Intake.Position.INTAKE);
             }),
-            Commands.waitUntil(() -> 
-                isPositionWithinTolerance() || 
-                didHitLimitSwitch()
-            ),
+            Commands.waitUntil(() -> isPositionWithinTolerance() || didHitLimitSwitch() || isAmpSpike()),
             runOnce(() -> setPivotPercentOutput(0))
         );
     }
+
+
+    public Command intakeUpCommand() {
+        return Commands.sequence(
+            Commands.waitSeconds(0.5),
+            runOnce(() -> {
+                intakePivotRequest = Intake.Position.HOMED;
+                set(Intake.Position.HOMED);
+            }),
+            Commands.waitUntil(() -> isPositionWithinTolerance() || didHitLimitSwitch() || isAmpSpike()),
+            runOnce(() -> setPivotPercentOutput(0))
+        );
+    }
+
 
     public Command zeroEncoderCommand() {
         return runOnce(() -> {
