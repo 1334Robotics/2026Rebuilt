@@ -38,6 +38,27 @@ public record ChoreoTraj(
 	    new Pose2d(3.6, 4, Rotation2d.fromRadians(0)),
 	    new Pose2d(1.9, 4, Rotation2d.fromRadians(0))
 	);
+	public static final ChoreoTraj MiddleOutpostShoot = new ChoreoTraj(
+	    "MiddleOutpostShoot",
+	    OptionalInt.empty(),
+	    4.78135,
+	    new Pose2d(3.58, 4, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(1.968, 3.636, Rotation2d.fromRadians(0.158))
+	);
+	public static final ChoreoTraj MiddleOutpostShoot$0 = new ChoreoTraj(
+	    "MiddleOutpostShoot",
+	    OptionalInt.of(0),
+	    2.80612,
+	    new Pose2d(3.58, 4, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(0.581, 0.66, Rotation2d.fromRadians(-3.121))
+	);
+	public static final ChoreoTraj MiddleOutpostShoot$1 = new ChoreoTraj(
+	    "MiddleOutpostShoot",
+	    OptionalInt.of(1),
+	    1.9752299999999998,
+	    new Pose2d(0.581, 0.66, Rotation2d.fromRadians(-3.121)),
+	    new Pose2d(1.968, 3.636, Rotation2d.fromRadians(0.158))
+	);
 	public static final ChoreoTraj OutpostAndDepotTrajectory = new ChoreoTraj(
 	    "OutpostAndDepotTrajectory",
 	    OptionalInt.empty(),
@@ -109,6 +130,9 @@ public record ChoreoTraj(
     public static final Map<String, ChoreoTraj> ALL_TRAJECTORIES = Map.ofEntries(
     	Map.entry("LeftAutoShoot", LeftAutoShoot),
 		Map.entry("MidAutoShoot", MidAutoShoot),
+		Map.entry("MiddleOutpostShoot", MiddleOutpostShoot),
+		Map.entry("MiddleOutpostShoot$0", MiddleOutpostShoot$0),
+		Map.entry("MiddleOutpostShoot$1", MiddleOutpostShoot$1),
 		Map.entry("OutpostAndDepotTrajectory", OutpostAndDepotTrajectory),
 		Map.entry("OutpostAndDepotTrajectory$0", OutpostAndDepotTrajectory$0),
 		Map.entry("OutpostAndDepotTrajectory$1", OutpostAndDepotTrajectory$1),

@@ -13,6 +13,8 @@ import static frc.robot.generated.ChoreoTraj.RightMiddleShoot$1;
 import static frc.robot.generated.ChoreoTraj.RightMiddleShoot$2;
 import static frc.robot.generated.ChoreoTraj.LeftAutoShoot;
 import static frc.robot.generated.ChoreoTraj.MidAutoShoot;
+import static frc.robot.generated.ChoreoTraj.MiddleOutpostShoot$0;
+import static frc.robot.generated.ChoreoTraj.MiddleOutpostShoot$1;
 
 
 import choreo.auto.AutoChooser;
@@ -73,6 +75,7 @@ public final class AutoRoutines {
         autoChooser.addRoutine("Left Auto Shoot", this::leftAutoShootRoutine);
         autoChooser.addRoutine("Mid Auto Shoot", this::midAutoShootRoutine);
         autoChooser.addRoutine("Right Middle Shoot", this::rightMiddleShootRoutine);
+        autoChooser.addRoutine("Middle Outpost Shoot", this::middleOutpostShoot);
         SmartDashboard.putData("Auto Chooser", autoChooser);
         RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
     }
@@ -234,6 +237,37 @@ public final class AutoRoutines {
                     .withTimeout(5)
             )
         );
+
+        return routine;
+    }
+    
+    private AutoRoutine middleOutpostShoot() {
+        final AutoRoutine routine = autoFactory.newRoutine("Middle Outpost Shoot");
+        final AutoTrajectory startToOutpost = MiddleOutpostShoot$0.asAutoTraj(routine);
+        final AutoTrajectory outpostToShootingPose = MiddleOutpostShoot$1.asAutoTraj(routine);
+
+        routine.active().onTrue(
+            Commands.sequence(
+                startToOutpost.resetOdometry(),
+                startToOutpost.cmd()
+            )
+        );
+        
+        startToOutpost.active().onTrue(
+            Commands.sequence(
+                Commands.waitSeconds(0.5),
+                intake.runOnce(() -> {
+                    intake.intakePivotRequest = Intake.Position.INTAKE;
+                    intake.set(Intake.Position.INTAKE);
+                }),
+                Commands.waitUntil(() -> intake.isPositionWithinTolerance() || intake.didHitLimitSwitch()),
+                intake.runOnce(() -> intake.setPivotPercentOutput(0))
+            )
+        );
+
+        startToOutpost.doneDelayed(1.5).onTrue(outpostToShootingPose.cmd());
+
+        outpostToShootingPose.done().onTrue(subsystemCommands.aimAndShoot());
 
         return routine;
     }
