@@ -139,12 +139,19 @@ public class RobotContainer {
         //             intake.set(Intake.Position.INTAKE);
         //         })); 
         
-        operator.b().whileTrue(shooter.spinUpCommand(3000));
+        operator.b().whileTrue(shooter.spinUpCommand(3000).finallyDo(() -> shooter.stop()));
         operator.a().whileTrue(subsystemCommands.manualShot(0.44, 4500));
         operator.x().whileTrue(subsystemCommands.manualShot(0.99, 4500));
-
         operator.y().whileTrue(subsystemCommands.manualShot(0.48, 3650));
-
+        // operator.b().whileTrue(subsystemCommands.manualShot(0.19, 1800)); //62 in (1) 57in (2)
+        // operator.a().whileTrue(subsystemCommands.manualShot(0.32, 2500)); //122in (1) 107 (2)
+        // operator.x().whileTrue(subsystemCommands.manualShot(0.44, 2750)); //172 in (1) 155 in (2)
+        // operator.y().whileTrue(subsystemCommands.manualShot(0.54, 3650)); //290 in (1) 263 in(2) 220in(3)
+        // operator.b().whileTrue(subsystemCommands.manualShot(0.5, 2500)); //153 (1) 141(2) 104in(3)
+        // operator.a().whileTrue(subsystemCommands.manualShot(0.7, 3500)); //230 (3)
+        // operator.x().whileTrue(subsystemCommands.manualShot(0.2, 2000)); //70in
+        // operator.y().whileTrue(subsystemCommands.manualShot(0.8, 3800)); // max tape
+        // operator.y().whileTrue(subsystemCommands.manualShot(0.3, 3800)); //230 (1) 200 (2)
     }
 
     private void configureManualDriveBindings() {

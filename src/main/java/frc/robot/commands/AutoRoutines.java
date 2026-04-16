@@ -65,6 +65,7 @@ public final class AutoRoutines {
         autoChooser.addRoutine("Outpost and Depot", this::outpostAndDepotRoutine);
         autoChooser.addRoutine("Left Manual Shoot", this::leftManualShootRoutine);
         autoChooser.addRoutine("Mid Auto Shoot", this::midAutoShootRoutine);
+        autoChooser.addRoutine("Right Middle Shoot", this::rightMiddleShootRoutine);
         SmartDashboard.putData("Auto Chooser", autoChooser);
         RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
     }
@@ -180,6 +181,20 @@ public final class AutoRoutines {
             ).andThen(subsystemCommands.aimAndShoot()
                 .withTimeout(5))
             
+        );
+
+        return routine;
+    }
+
+    private AutoRoutine rightMiddleShootRoutine() {
+        final AutoRoutine routine = autoFactory.newRoutine("Right Middle Shoot");
+        final AutoTrajectory rightMiddleShoot = routine.trajectory("RightMiddleShoot");
+
+        routine.active().onTrue(
+            Commands.sequence(
+                rightMiddleShoot.resetOdometry(),
+                rightMiddleShoot.cmd()
+            )
         );
 
         return routine;
