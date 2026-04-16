@@ -8,12 +8,19 @@ import static frc.robot.generated.ChoreoTraj.OutpostAndDepotTrajectory$0;
 import static frc.robot.generated.ChoreoTraj.OutpostAndDepotTrajectory$1;
 import static frc.robot.generated.ChoreoTraj.OutpostAndDepotTrajectory$2;
 import static frc.robot.generated.ChoreoTraj.OutpostAndDepotTrajectory$3;
+import static frc.robot.generated.ChoreoTraj.RightMiddleShoot$0;
+import static frc.robot.generated.ChoreoTraj.RightMiddleShoot$1;
+import static frc.robot.generated.ChoreoTraj.RightMiddleShoot$2;
+import static frc.robot.generated.ChoreoTraj.LeftAutoShoot;
+import static frc.robot.generated.ChoreoTraj.MidAutoShoot;
+
 
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.subsystems.Feeder;
@@ -63,7 +70,7 @@ public final class AutoRoutines {
 
     public void configure() {
         autoChooser.addRoutine("Outpost and Depot", this::outpostAndDepotRoutine);
-        autoChooser.addRoutine("Left Manual Shoot", this::leftManualShootRoutine);
+        autoChooser.addRoutine("Left Auto Shoot", this::leftAutoShootRoutine);
         autoChooser.addRoutine("Mid Auto Shoot", this::midAutoShootRoutine);
         autoChooser.addRoutine("Right Middle Shoot", this::rightMiddleShootRoutine);
         SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -132,18 +139,18 @@ public final class AutoRoutines {
         return routine;
     }
 
-    private AutoRoutine leftManualShootRoutine() {
-        final AutoRoutine routine = autoFactory.newRoutine("Left Manual Shoot");
-        final AutoTrajectory leftManualShoot = routine.trajectory("LeftManualShoot");
+    private AutoRoutine leftAutoShootRoutine() {
+        final AutoRoutine routine = autoFactory.newRoutine("Left Auto Shoot");
+        final AutoTrajectory leftAutoShoot = LeftAutoShoot.asAutoTraj(routine);
 
         routine.active().onTrue(
             Commands.sequence(
-                leftManualShoot.resetOdometry(),
-                leftManualShoot.cmd()
+                leftAutoShoot.resetOdometry(),
+                leftAutoShoot.cmd()
             )
         );
 
-        leftManualShoot.done().onTrue(
+        leftAutoShoot.done().onTrue(
             Commands.sequence(
                 Commands.waitSeconds(0.5),
                 intake.runOnce(() -> {
@@ -160,7 +167,7 @@ public final class AutoRoutines {
 
     private AutoRoutine midAutoShootRoutine() {
         final AutoRoutine routine = autoFactory.newRoutine("Mid Auto Shoot");
-        final AutoTrajectory midAutoShoot = routine.trajectory("MidAutoShoot");
+        final AutoTrajectory midAutoShoot = MidAutoShoot.asAutoTraj(routine);
 
         routine.active().onTrue(
             Commands.sequence(
@@ -188,12 +195,43 @@ public final class AutoRoutines {
 
     private AutoRoutine rightMiddleShootRoutine() {
         final AutoRoutine routine = autoFactory.newRoutine("Right Middle Shoot");
-        final AutoTrajectory rightMiddleShoot = routine.trajectory("RightMiddleShoot");
+        final AutoTrajectory startToNeutral = RightMiddleShoot$0.asAutoTraj(routine);
+        final AutoTrajectory neutralIntake = RightMiddleShoot$1.asAutoTraj(routine);
+        final AutoTrajectory neutralToShootingPose = RightMiddleShoot$2.asAutoTraj(routine);
 
         routine.active().onTrue(
             Commands.sequence(
-                rightMiddleShoot.resetOdometry(),
-                rightMiddleShoot.cmd()
+                startToNeutral.resetOdometry(),
+                startToNeutral.cmd()
+            )
+        );
+        startToNeutral.done().onTrue(neutralIntake.cmd());
+
+        neutralIntake.active().onTrue(
+            Commands.sequence(
+                intake.runOnce(() -> {
+                    intake.intakePivotRequest = Intake.Position.INTAKE;
+                    intake.set(Intake.Position.INTAKE);
+                }),
+                Commands.waitUntil(() -> intake.isPositionWithinTolerance() || intake.didHitLimitSwitch()),
+                intake.runOnce(() -> intake.setPivotPercentOutput(0)),
+                intake.intakeCommand()
+            )
+        );
+
+        neutralIntake.done().onTrue(neutralToShootingPose.cmd());
+
+        neutralToShootingPose.active().whileTrue(limelight.idle());
+        neutralToShootingPose.atTime(0.5).onTrue(
+            Commands.parallel(
+                shooter.spinUpCommand(3000),
+                hood.positionCommand(0.32)
+            )
+        );
+        neutralToShootingPose.done().onTrue(
+            Commands.sequence(
+                subsystemCommands.aimAndShoot() 
+                    .withTimeout(5)
             )
         );
 

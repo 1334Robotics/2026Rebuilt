@@ -4,18 +4,14 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import java.util.Optional;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Driving;
 import frc.robot.commands.AutoRoutines;
@@ -26,11 +22,11 @@ import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Floor;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Led;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Rumble;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Swerve;
-import frc.robot.subsystems.Led;
 import frc.util.SwerveTelemetry;
 
 /**
@@ -139,7 +135,7 @@ public class RobotContainer {
         //             intake.set(Intake.Position.INTAKE);
         //         })); 
         
-        operator.b().whileTrue(shooter.spinUpCommand(3000).finallyDo(() -> shooter.stop()));
+        operator.b().whileTrue(shooter.spinUpCommand(3000).andThen(Commands.run(() -> {}, shooter)).finallyDo(() -> shooter.stop()));
         operator.a().whileTrue(subsystemCommands.manualShot(0.44, 4500));
         operator.x().whileTrue(subsystemCommands.manualShot(0.99, 4500));
         operator.y().whileTrue(subsystemCommands.manualShot(0.48, 3650));
