@@ -46,6 +46,8 @@ public class Robot extends TimedRobot {
         // and running subsystem periodic() methods.  This must be called from the robot's periodic
         // block in order for anything in the Command-based framework to work.
         CommandScheduler.getInstance().run();
+        SmartDashboard.putBoolean("Hub Active", m_robotContainer.isHubActive());
+        SmartDashboard.putBoolean("Hub Active (Timer)", m_robotContainer.isHubActiveTimer());
     }
 
 
@@ -54,7 +56,7 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void teleopInit() {
-
+        m_robotContainer.onTeleopInit();
         // Scream if intake isn't zeroed
         m_robotContainer.setIntakePosition();
     }
