@@ -9,6 +9,9 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import java.util.Optional;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -52,6 +55,8 @@ public class RobotContainer {
     private final CommandXboxController operator = new CommandXboxController(1);
 
     private final Rumble rumble = new Rumble(driver, operator);
+
+    private final Timer teleopTimer = new Timer();
 
     private final AutoRoutines autoRoutines = new AutoRoutines(
         swerve,
@@ -102,8 +107,8 @@ public class RobotContainer {
         operator.leftTrigger().whileTrue(intake.intakeCommand());
         operator.rightTrigger().whileTrue(subsystemCommands.aimAndShoot());
 
-        operator.rightBumper().whileTrue(subsystemCommands.feedAndShoot());
-        operator.leftBumper().whileTrue(subsystemCommands.manualShot(0.2, 3100));
+        // operator.rightBumper().whileTrue(subsystemCommands.feedAndShoot());
+        operator.rightBumper().whileTrue(subsystemCommands.manualShot(0.2, 3100));
 
 
         // tested and working
@@ -184,5 +189,74 @@ public class RobotContainer {
 
     public void setIntakePosition() {
         intake.setIntakePos();
+    }
+
+    public void onTeleopInit() {
+        teleopTimer.restart();
+    }
+
+    public boolean isHubActiveTimer() {
+        Optional<Alliance> alliance = DriverStation.getAlliance();
+        if (alliance.isEmpty()) return false;
+
+        if (DriverStation.isAutonomousEnabled()) return true;
+        if (!DriverStation.isTeleopEnabled()) return false;
+
+        String gameData = DriverStation.getGameSpecificMessage();
+        if (gameData.isEmpty()) return true;
+
+        boolean redInactiveFirst = false;
+        switch (gameData.charAt(0)) {
+            case 'R' -> redInactiveFirst = true;
+            case 'B' -> redInactiveFirst = false;
+            default -> { return true; }
+        }
+
+        boolean shift1Active = switch (alliance.get()) {
+            case Red -> !redInactiveFirst;
+            case Blue -> redInactiveFirst;
+        };
+
+        double elapsed = teleopTimer.get();
+        if (elapsed < 20)  return true;           // Transition shift
+        else if (elapsed < 45)  return shift1Active;   // Shift 1
+        else if (elapsed < 70)  return !shift1Active;  // Shift 2
+        else if (elapsed < 95)  return shift1Active;   // Shift 3
+        else if (elapsed < 120) return !shift1Active;  // Shift 4
+        else return true;                              // Endgame
+    }
+
+    public boolean isHubActive() {
+        Optional<Alliance> alliance = DriverStation.getAlliance();
+        if (alliance.isEmpty()) return false;
+
+        // Hub always active in Auto
+        if (DriverStation.isAutonomousEnabled()) return true;
+        if (!DriverStation.isTeleopEnabled()) return false;
+
+        double matchTime = DriverStation.getMatchTime();
+        String gameData = DriverStation.getGameSpecificMessage();
+
+        // No data yet — assume active (early teleop)
+        if (gameData.isEmpty()) return true;
+
+        boolean redInactiveFirst = false;
+        switch (gameData.charAt(0)) {
+            case 'R' -> redInactiveFirst = true;
+            case 'B' -> redInactiveFirst = false;
+            default -> { return true; } // corrupt data, assume active
+        }
+
+        boolean shift1Active = switch (alliance.get()) {
+            case Red -> !redInactiveFirst;
+            case Blue -> redInactiveFirst;
+        };
+
+        if (matchTime > 130) return true;        // Transition shift
+        else if (matchTime > 105) return shift1Active;   // Shift 1
+        else if (matchTime > 80)  return !shift1Active;  // Shift 2
+        else if (matchTime > 55)  return shift1Active;   // Shift 3
+        else if (matchTime > 30)  return !shift1Active;  // Shift 4
+        else return true;                                // Endgame
     }
 }
