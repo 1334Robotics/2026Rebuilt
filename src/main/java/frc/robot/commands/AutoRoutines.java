@@ -210,7 +210,7 @@ public final class AutoRoutines {
         );
         startToNeutral.done().onTrue(neutralIntake.cmd());
 
-        neutralIntake.active().onTrue(
+        startToNeutral.active().onTrue(
             Commands.sequence(
                 intake.runOnce(() -> {
                     intake.intakePivotRequest = Intake.Position.INTAKE;
@@ -234,7 +234,7 @@ public final class AutoRoutines {
         neutralToShootingPose.done().onTrue(
             Commands.sequence(
                 subsystemCommands.aimAndShoot() 
-                    .withTimeout(5)
+                    .withTimeout(10)
             )
         );
 
