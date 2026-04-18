@@ -47,7 +47,6 @@ public class Robot extends TimedRobot {
         // block in order for anything in the Command-based framework to work.
         CommandScheduler.getInstance().run();
         SmartDashboard.putBoolean("Hub Active", m_robotContainer.isHubActive());
-        SmartDashboard.putBoolean("Hub Active (Timer)", m_robotContainer.isHubActiveTimer());
     }
 
 

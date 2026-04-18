@@ -195,37 +195,6 @@ public class RobotContainer {
         teleopTimer.restart();
     }
 
-    public boolean isHubActiveTimer() {
-        Optional<Alliance> alliance = DriverStation.getAlliance();
-        if (alliance.isEmpty()) return false;
-
-        if (DriverStation.isAutonomousEnabled()) return true;
-        if (!DriverStation.isTeleopEnabled()) return false;
-
-        String gameData = DriverStation.getGameSpecificMessage();
-        if (gameData.isEmpty()) return true;
-
-        boolean redInactiveFirst = false;
-        switch (gameData.charAt(0)) {
-            case 'R' -> redInactiveFirst = true;
-            case 'B' -> redInactiveFirst = false;
-            default -> { return true; }
-        }
-
-        boolean shift1Active = switch (alliance.get()) {
-            case Red -> !redInactiveFirst;
-            case Blue -> redInactiveFirst;
-        };
-
-        double elapsed = teleopTimer.get();
-        if (elapsed < 20)  return true;           // Transition shift
-        else if (elapsed < 45)  return shift1Active;   // Shift 1
-        else if (elapsed < 70)  return !shift1Active;  // Shift 2
-        else if (elapsed < 95)  return shift1Active;   // Shift 3
-        else if (elapsed < 120) return !shift1Active;  // Shift 4
-        else return true;                              // Endgame
-    }
-
     public boolean isHubActive() {
         Optional<Alliance> alliance = DriverStation.getAlliance();
         if (alliance.isEmpty()) return false;
