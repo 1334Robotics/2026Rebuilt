@@ -51,11 +51,17 @@ public class PrepareShotCommand extends Command {
     private final Shooter shooter;
     private final Hood hood;
     private final Supplier<Pose2d> robotPoseSupplier;
+    private final double rpmMultiplier;
 
     public PrepareShotCommand(Shooter shooter, Hood hood, Supplier<Pose2d> robotPoseSupplier) {
+        this(shooter, hood, robotPoseSupplier, 1.0);
+    }
+
+    public PrepareShotCommand(Shooter shooter, Hood hood, Supplier<Pose2d> robotPoseSupplier, double rpmMultiplier) {
         this.shooter = shooter;
         this.hood = hood;
         this.robotPoseSupplier = robotPoseSupplier;
+        this.rpmMultiplier = rpmMultiplier;
         addRequirements(shooter, hood);
     }
 
@@ -73,7 +79,7 @@ public class PrepareShotCommand extends Command {
     public void execute() {
         final Distance distanceToHub = getDistanceToHub();
         final Shot shot = distanceToShotMap.get(distanceToHub);
-        shooter.setRPM(shot.shooterRPM);
+        shooter.setRPM(shot.shooterRPM * rpmMultiplier);
         hood.setPosition(shot.hoodPosition);
         SmartDashboard.putNumber("Distance to Hub (inches)", distanceToHub.in(Inches));
         SmartDashboard.putNumber("Shot RPM", shot.shooterRPM);
